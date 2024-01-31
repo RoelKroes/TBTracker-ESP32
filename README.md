@@ -26,6 +26,10 @@ The minimal hardware configuration you need is:
 - GPS module (recommended Ublox Neo or ATGM336H)
 - Lora module (sx1278 or sx1276 or Hope RFM9x module)
 
+# Horusbinary_radiolib
+The radio related basecode for this sketch was taken from the horusbinary_radiolib project.
+See: https://github.com/projecthorus/horusbinary_radiolib
+
 # Installation
 Connect your LoRa and GPS modules to your ESP board and change the values in the settings.h file.See the comments in the settings.h file. Compile in the Arduino IDE and upload to your board.
 
