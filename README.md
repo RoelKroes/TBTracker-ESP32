@@ -27,7 +27,7 @@ The minimal hardware configuration you need is:
 - Lora module (sx1278 or sx1276 or Hope RFM9x module)
 
 # Installation
-Connect your LoRa and GPS modules to your ESP board and change the values in the settings.h file.See the comments in the settings.h file.
+Connect your LoRa and GPS modules to your ESP board and change the values in the settings.h file.See the comments in the settings.h file. Compile in the Arduino IDE and upload to your board.
 
 # Versions
 
