@@ -16,7 +16,7 @@ It is designed to send telemetry data in the correct format for https://amateur.
 The code is written in the Arduino IDE for ESP32 with a GPS module and a LoRa module like the sx1278 or sx1276 or Hope RFM9x.
 
 # Library
-You will need two install two extra Arduino library from the librairy manager:
+You will need to install two extra Arduino library from the librairy manager:
 - Radiolib
 - TinyGPS++
 
