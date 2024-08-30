@@ -414,9 +414,11 @@ void sendLoRaAprs()
    aprs_packet += LORA_APRS_SSID;
    //Add Destination (do not use digipeating)
    aprs_packet += ">";
-   aprs_packet += LORA_APRS_DEST;
-   // start of "real" data (Coordinates without timestamp)
-   aprs_packet += ":=";
+   aprs_packet += "APZTBT";   // destination callsign_APRS_DEST;
+   // start of "real" data (Coordinates with timestamp)
+   aprs_packet += ":@";
+   // get the APRS timestamp
+   aprs_packet += getAPRStimestamp();
    // get the APRS latitude
    aprs_packet += getAPRSlat(UGPS.Latitude);
    // Add the symbol for the primary symbol table

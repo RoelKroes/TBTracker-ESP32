@@ -28,7 +28,7 @@ static void smartDelay(unsigned long ms)
 static void processGPSData()
 {
   
-  // Number of Satellites
+  // Number of Satellitese
   if (gps.satellites.isValid())
     UGPS.Satellites = gps.satellites.value();
   else
@@ -40,12 +40,14 @@ static void processGPSData()
     UGPS.Hours = gps.time.hour();
     UGPS.Minutes = gps.time.minute();
     UGPS.Seconds = gps.time.second();
+    UGPS.Day = gps.date.day();
  }
  else
  {
     UGPS.Hours = 0;
     UGPS.Minutes = 0;
     UGPS.Seconds = 0;
+    UGPS.Day = 0;
  }
 
  // Position
@@ -142,6 +144,14 @@ String getAPRSlon(float lon_dd)
 }
 
 
+/*********************************************************************************************************************************/
+String getAPRStimestamp()
+{
+  char buf[10];
+
+  sprintf(buf,"%02d%02d%02dh",UGPS.Hours,UGPS.Minutes,UGPS.Seconds);
+  return buf;
+}
 
 /*********************************************************************************************************************************/
 String getAPRSlat(float lat_dd)

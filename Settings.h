@@ -19,10 +19,10 @@
 #define MOSI 35
 #define CS 34
 
-#define PIN_NSS   34 
-#define PIN_DIO0  38
+#define PIN_NSS   18
+#define PIN_DIO0  26
 #define PIN_BUSY  -1  // Not used in this sketch for sx1278
-#define PIN_RESET 33  
+#define PIN_RESET 23  
 #define PIN_DIO1  -1  // Not used in this sketch for sx1278
 
 /***********************************************************************************
@@ -71,7 +71,7 @@
 * 99 = (World wide LoRa-APRS mode at 433.775MHz, Explicit mode, Error coding 4:5, Bandwidth 125kHz, SF 12,Low data rate optimize off - SUPPORTED  )
 ************************************************************************************/
 #define LORA_PAYLOAD_ID  "MYCALL"  // This will show on Sondehub. Payload ID for LoRa protocol. CHANGE THIS!
-#define LORA_FREQUENCY  434.750     // in MHz
+#define LORA_FREQUENCY  432.662     // in MHz
 #define LORA_MODE 2                 // Mode 2 is usually used for simple telemetry data
 #define LORA_REPEATS 1              // number of LoRa transmits during a cycle
 #define LORA_LOOPTIME 25            // Transmit LoRa every xx seconds
@@ -82,11 +82,10 @@
 * Personalize when you have LORA_APRS_ENABLED set to true and you want LORA-APRS transmissions
 ************************************************************************************/
 #define LORA_APRS_PAYLOAD_ID  "MYCALL"  // CHANGE THIS. This will show on Sondehub. For LORA-APRS this should be a HAM call without SSID.
-#define LORA_APRS_SSID "-11"                  // 11 is the symbol for balloon
-#define LORA_APRS_DEST "APRS"                 // destination callsign
+#define LORA_APRS_SSID "-11"            // 11 is the symbol for balloon
 #define LORA_APRS_MODE 99                     
-#define LORA_APRS_FREQUENCY  433.775          // LORA-APRS is worldwide on 433.775 MHz, do not change
-#define LORA_APRS_LOOPTIME 120                // Set this rather high (>120s), so you won't be flagged for misusing the APRS network
+#define LORA_APRS_FREQUENCY  433.775  // LORA-APRS is worldwide on 433.775 MHz, do not change
+#define LORA_APRS_LOOPTIME 120        // Set this rather high (>120s), so you won't be flagged for misusing the APRS network
 
 
 /***********************************************************************************
@@ -116,7 +115,7 @@
 * Change if needed
 ************************************************************************************/
 // GPS Serial device
-static const int Rx = 40, Tx = 39;  // This will probably be different for your board
+static const int Rx = 15, Tx = 12;  // This will probably be different for your board
 static const uint32_t GPSBaud = 9600;
 
 /***********************************************************************************

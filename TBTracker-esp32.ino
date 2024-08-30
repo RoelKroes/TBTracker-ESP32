@@ -1,14 +1,10 @@
 /************************************************************************************
-* TBTracker-RX - roel@kroes.com
+* TBTracker-esp32 - roel@kroes.com
 * 
-* A mobile software platform for receiving LoRa transmissions and uploading those 
-* to amateur.sondehub.org. The software is designed to run on the esp32 platform. 
-* A TTGO T-Beam would be ideal. It has WiFi connectivity, a simple web interface and support for a OLED display
-* 
- *  FIRST THING YOU NEED TO DO IS ADJUST THE SETTINGS IN Settings.h
- *  
- *  Have FUN!
- ***********************************************************************************/
+*  FIRST THING YOU NEED TO DO IS ADJUST THE SETTINGS IN Settings.h
+*  
+*  Have FUN!
+***********************************************************************************/
 
 #include "Settings.h"
 #include <SPI.h>
@@ -16,7 +12,7 @@
 #include <RadioLib.h>
 #include "horus_l2.h"
 
-#define TBTRACKER_VERSION v0.1.0
+#define TBTRACKER_VERSION v0.1.1
 
 /***********************************************************************************
 * DATA STRUCTS
@@ -26,7 +22,7 @@
 // Struct to hold GPS data
 struct TGPS
 {
-  int Hours, Minutes, Seconds;
+  int Hours, Minutes, Seconds, Day;
   float Longitude, Latitude;
   long Altitude;
   unsigned int Satellites;
@@ -202,7 +198,7 @@ void setup()
   setCpuFrequencyMhz(80);
 
   // Setup Serial for debugging
-  Serial.begin(57600);
+  Serial.begin(115200);
   
   SPI.begin(SCK,MISO,MOSI,CS);
 
