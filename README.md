@@ -36,5 +36,9 @@ Connect your LoRa and GPS modules to your ESP board and change the values in the
 # Versions
 
 V0.1.0:
-
 - Initial commit
+- 
+V0.1.1:  
+- Added a temporary APRS device-ID (APZTBT)
+- Added a timestamp to to the APRS packets for better compatibility with Sondehub
+
