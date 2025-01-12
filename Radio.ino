@@ -414,7 +414,7 @@ void sendLoRaAprs()
    aprs_packet += LORA_APRS_SSID;
    //Add Destination (do not use digipeating)
    aprs_packet += ">";
-   aprs_packet += "APZTBT";   // destination callsign_APRS_DEST;
+   aprs_packet += "APETBT";   // destination callsign_APRS_DEST;
    // start of "real" data (Coordinates with timestamp)
    aprs_packet += ":@";
    // get the APRS timestamp
