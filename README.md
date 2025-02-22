@@ -12,6 +12,7 @@ It supports sending telemetry data in mulitple formats:
 You can select multiple modes or just a single mode.
 
 It is designed to send telemetry data in the correct format for https://amateur.sondehub.org.
+As of v0.2.0 it is also capable of receiving LoRa packets and act upon that (experimental).
 
 The code is written in the Arduino IDE for ESP32 with a GPS module and a LoRa module like the sx1278 or sx1276 or Hope RFM9x.
 
@@ -41,4 +42,8 @@ V0.1.0:
 V0.1.1:  
 - Added a temporary APRS device-ID (APZTBT)
 - Added a timestamp to to the APRS packets for better compatibility with Sondehub
+
+V0.2.0:
+- TBTracker got assigned its own APRS device-ID (APETBT). This is "hardcoded" into the source. Please do not change this ID, as it is used by APRS to identify the APRS packets as coming from TBTracker
+- TBTracker can now receive LoRa packets and act upon it. This can be used to release payloads or do other things. You need to enable it in settings.h. LoRa needs to enabled and RX will use the same settings as TX.
 
