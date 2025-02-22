@@ -1,6 +1,5 @@
 /***********************************************************************************
 * Important: CHANGE THE SETTINGS BELOW so it matches your configuration
-*
 ************************************************************************************/
 
 /***********************************************************************************
@@ -14,10 +13,10 @@
 * #define MOSI 35
 * #define CS 34
 ************************************************************************************/
-#define SCK 36
-#define MISO 37
-#define MOSI 35
-#define CS 34
+#define SCK 5
+#define MISO 19
+#define MOSI 27
+#define CS 18
 
 #define PIN_NSS   18
 #define PIN_DIO0  26
@@ -31,10 +30,11 @@
 * See below for the settings for the different protocols
 ************************************************************************************/
 #define RTTY_ENABLED false      // Set to true if you want RTTY transmissions
-#define LORA_ENABLED false      // Set to true if you want LoRa transmissions
+#define LORA_ENABLED true       // Set to true if you want LoRa transmissions
+#define RECEIVING_ENABLED false // Set to true if you want the Tracker to listen on the LoRa frequency for incoming packets
 #define HORUS_V1_ENABLED false  // Set to true if you want HorusBinary V1 transmissions
 #define HORUS_V2_ENABLED false  // Set to true if you want HorusBinary V2 transmissions
-#define LORA_APRS_ENABLED false  // Set to true if you want LORA-APRS transmissions (experimental)
+#define LORA_APRS_ENABLED false // Set to true if you want LORA-APRS transmissions (experimental)
 
 /***********************************************************************************
 * RTTY SETTINGS
@@ -70,11 +70,11 @@
 * 8 = (SSDV repeater,          4500 baud)  Explicit mode, Error coding 4:5, Bandwidth 62.5kHz, SF 6, Low data rate optimize off - SUPPORTED
 * 99 = (World wide LoRa-APRS mode at 433.775MHz, Explicit mode, Error coding 4:5, Bandwidth 125kHz, SF 12,Low data rate optimize off - SUPPORTED  )
 ************************************************************************************/
-#define LORA_PAYLOAD_ID  "MYCALL"  // This will show on Sondehub. Payload ID for LoRa protocol. CHANGE THIS!
+#define LORA_PAYLOAD_ID  "MYCALL-L"  // This will show on Sondehub. Payload ID for LoRa protocol. CHANGE THIS!
 #define LORA_FREQUENCY  432.662     // in MHz
 #define LORA_MODE 2                 // Mode 2 is usually used for simple telemetry data
 #define LORA_REPEATS 1              // number of LoRa transmits during a cycle
-#define LORA_LOOPTIME 25            // Transmit LoRa every xx seconds
+#define LORA_LOOPTIME 120            // Transmit LoRa every xx seconds
 
 /***********************************************************************************
 * LORA-APRS SETTINGS
@@ -103,7 +103,7 @@
 //**********************************************************************************
 #define PAYLOAD_ID_V1  0
 #define PAYLOAD_ID_V2   256
-#define HORUS_FREQUENCY 433.415
+#define HORUS_FREQUENCY 437.600
 #define HORUS_POWER        10   // In dBm. Valid values +2 to +17 dBm. 10dBm = 10mW, 13dBm=20mW
 #define HORUS_BAUD         100  // recommended 50 (8MHz processor) or 100 baud (16MHz or better processor)
 #define HORUS_SPACING      270  // NOTE: This results in a shift of 244 Hz due to the PLL Resolution of the SX127x which is 61Hz

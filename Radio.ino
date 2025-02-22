@@ -10,6 +10,21 @@ SX1278 radio = new Module(PIN_NSS, PIN_DIO0, PIN_DIO1);
 RTTYClient rtty(&radio);
 
 
+/************************************************************************************
+* this function is called when a complete packet is received by the radio module
+* IMPORTANT: this function MUST be 'void' type and MUST NOT have any arguments!
+************************************************************************************/
+void setFlag(void) 
+{
+  // we got a packet, set the flag
+  receivedFlag = true;
+}
+
+void unsetFlag(void) 
+{
+  radio.clearDio0Action();
+}
+
 //===============================================================================
 void SetupRTTY()
 {
@@ -134,7 +149,8 @@ void SetupLoRa(int aMode)
     case 1:
       LoRaSettings.CodeRate = 5;
       LoRaSettings.Bandwidth = 20.8;      
-      LoRaSettings.SpreadFactor = 6;      
+      LoRaSettings.SpreadFactor = 6; 
+      LoRaSettings.implicitHeader = 255;     
       LoRaSettings.Frequency = LORA_FREQUENCY;
     break;   
     
@@ -281,7 +297,6 @@ void ResetRadio()
   digitalWrite(PIN_RESET,HIGH);
   delay(100);
 }
-
 
 //===============================================================================
 void sendLoRa(String TxLine, int aMode)
@@ -435,4 +450,38 @@ void sendLoRaAprs()
    Serial.println("Sending LoRa APRS packet...");
    sendLoRa(aprs_packet,LORA_APRS_MODE);
 
+}
+
+
+//===============================================================================
+// Put the radio in RX mode
+//===============================================================================
+void StartReceiveLoRaPacket()
+{
+   int16_t state;
+
+   SetupLoRa(LORA_MODE);  
+   radio.setDio0Action(setFlag, RISING);  // As of RadioLib 6.0.0 all methods to attach interrupts no longer have a default level change direction
+
+  if (LORA_MODE == 1) 
+  {
+    state  = radio.startReceive(LoRaSettings.implicitHeader);
+  } 
+  else 
+  {
+    state = radio.startReceive();
+  }
+
+   if (state == RADIOLIB_ERR_NONE) 
+   {
+     Serial.println(F("success!"));
+     Serial.print(F("[LoRa] Waiting for packets on: ")); Serial.print(LoRaSettings.Frequency,3); Serial.println(F(" MHz"));
+     Serial.println(F("----------------------------"));
+   } 
+   else 
+   {
+     Serial.print(F("failed, code "));
+     Serial.println(state);
+     // while (true);
+   }
 }
