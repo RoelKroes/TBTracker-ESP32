@@ -48,6 +48,7 @@ This is a major release, so expects some bugs
 - Added very basic support for APRS (besides the already existing LoRa-APRS). This function iscurrently not really stable. Some RF chips work correctly, some do not.
 - Added basic option for geofencing. You can now specify specific LoRa-APRS frequencies for when your tracker is in a specific country.
 - Added support for a voltage divider so voltage can be tracked better
+- Added support for the BME280 sensor
 - Improved programming comments
 
 V0.1.1:  
