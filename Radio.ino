@@ -1,80 +1,136 @@
+//============================================================================
+// Radio rtelated functions
+//============================================================================
+
 // include the library
 #include <RadioLib.h>
 
+// max packet length
 #define PACKETLEN 255
 
-// Change 'SX1278' in the line below to 'SX1276' if you have a SX1276 module.
-SX1278 radio = new Module(PIN_NSS, PIN_DIO0, PIN_DIO1);
+// Create radio modules depending on what RF chip you use
+#if defined(USE_SX127X)
+SX1278 radio = new Module(PIN_NSS, PIN_DIO0, PIN_RESET, PIN_DIO1);
+#else
+#if defined(USE_LLCC68)
+LLCC68 radio = new Module(PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY);
+#else
+#if defined(USE_SX126X)
+SX1268 radio = new Module(PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY);
+#endif
+#endif
+#endif
 
 // create RTTY client instance using the radio module
 RTTYClient rtty(&radio);
 
-
-/************************************************************************************
-* this function is called when a complete packet is received by the radio module
-* IMPORTANT: this function MUST be 'void' type and MUST NOT have any arguments!
-************************************************************************************/
-void setFlag(void) 
-{
+//============================================================================
+// this function is called when a complete packet is received by the radio module
+// in receiving mode.
+// IMPORTANT: this function MUST be 'void' type and MUST NOT have any arguments!
+//============================================================================
+void setFlag(void) {
   // we got a packet, set the flag
   receivedFlag = true;
 }
 
-void unsetFlag(void) 
-{
+//============================================================================
+// Clear the interupt flag when in receiving mode
+//============================================================================
+void unsetFlag(void) {
+#if defined(USE_SX127X)
   radio.clearDio0Action();
+#else
+  radio.clearDio1Action();
+#endif
 }
 
-//===============================================================================
-void SetupRTTY()
-{
-
+//============================================================================
+// Do the setup for RTTY
+//============================================================================
+void SetupRTTY() {
   // First setup FSK
   SetupFSK();
-
+  // RTTY
   Serial.print(F("RTTY init.."));
-
-  int16_t state = rtty.begin(RTTYSettings.Frequency,
-                     RTTYSettings.Shift,
-                     RTTYSettings.Baud,
-                     RTTYSettings.Encoding,
-                     RTTYSettings.StopBits  );
-                     
-  if(state == RADIOLIB_ERR_NONE) // Change this to (state == ERR_NONE) if you use an older radiolib library
-  {
-
-    Serial.println(F("done"));
-  } else 
-  {
-
-    Serial.print(F("failed, code "));
-    Serial.println(state);
-    while(true);
-  }
+  // Setup for RTTY
+  Radiolib_assert(
+    rtty.begin(RTTYSettings.Frequency,
+               RTTYSettings.Shift,
+               RTTYSettings.Baud,
+               RTTYSettings.Encoding,
+               RTTYSettings.StopBits));
 }
 
-//===============================================================================
-void SetupHorus()
-{
+//============================================================================
+// Setup the radio for APRS and send an APRS packet
+//============================================================================
+void SendAPRS() {
+  // PIN_DIO2 needs to be connected
+  AFSKClient audio(&radio, PIN_DIO2);
+  // create AX.25 client instance using the FSK module
+  AX25Client ax25(&audio);
+  // create APRS client instance using the AX.25 client
+  APRSClient aprs(&ax25);
+
+  Serial.println();
+  Serial.print("Setting up radio for APRS...");
+  Radiolib_assert(radio.beginFSK(APRS_AFSK_FREQUENCY + APRS_AFSK_FREQ_OFFSET));
+  Radiolib_assert(radio.setOutputPower(APRS_AFSK_POWER));
+  // If we get this far, the radio is initialized
+  // initialize AX.25 client
+  Serial.print(F("[AX.25] Initializing ... "));
+  // Source call, ssid, preamble length
+  Radiolib_assert(ax25.begin(APRS_AFSK_CALLSIGN, APRS_AFSK_SSID, APRS_AFSK_PREAMBLE));
+
+  // Correct tone if necessary
+  // Radiolib_assert(ax25.setCorrection(1, 2));
+
+  // initialize APRS client
+  Serial.print(F("[APRS] Initializing ... "));
+  // symbol:'O' (Balloon)
+  Radiolib_assert(aprs.begin('O'));
+
+  // If we get here we are ready send an APRS packet using AFSK/AX.25
+  String lStr;
+  Serial.println(F("[APRS] Sending location report"));
+  // The DESTID that TBTracker was assigned. Do not change.
+  char destination[] = "APETBT";
+  // Get the current latitude
+  char latitude[10];
+  lStr = getAPRSlat(UGPS.Latitude);
+  lStr.toCharArray(latitude, lStr.length() + 1);
+  // Get thre current longitude
+  char longitude[10];
+  lStr = getAPRSlon(UGPS.Longitude);
+  lStr.toCharArray(longitude, lStr.length() + 1);
+  // Get the current altitude
+  char altitude[10];
+  lStr = getAPRSAlt(UGPS.Altitude);
+  lStr.toCharArray(altitude, lStr.length() + 1);
+  // Get the current time
+  char timestamp[10];
+  lStr = getAPRStimestamp();
+  lStr.toCharArray(timestamp, lStr.length() + 1);
+
+  // Send the actual APRS packet
+  Radiolib_assert(aprs.sendPosition(destination, 0, latitude, longitude, altitude, timestamp));
+}
+
+//============================================================================
+// Set the radio for Horus 4FSK
+//============================================================================
+void SetupHorus(float lFreq) {
   Serial.println();
   Serial.print("Setting up radio for Horus...");
-  // Initialize the radio in FSK mode
-  int16_t state = radio.beginFSK();
-  // Only continue if there is no error state
-  if(state == RADIOLIB_ERR_NONE) 
-  {
-    Serial.println(F("success!"));
-  } else 
-  {
-    Serial.print(F("failed, code "));
-    Serial.println(state);
-    while(true);
-  }
+// Initialize the radio in FSK mode
+#if defined(USE_SX126X)
+  Radiolib_assert(radio.beginFSK(434.0, 4.8, 5.0, 156.2, 10, 16, 0, false));
+#else
+  Radiolib_assert(radio.beginFSK());
+#endif
 
-  state = radio.setOutputPower(HORUS_POWER);
-
-  Serial.print(F("[FSK4] Initializing ... ")); 
-
+  Serial.print(F("[FSK4] Initializing ... "));
   // initialize FSK4 transmitter
   // NOTE: FSK4 frequency shift will be rounded
   //       to the nearest multiple of frequency step size.
@@ -86,301 +142,285 @@ void SetupHorus()
   //         nRF24 - 1000000 Hz
   //         Si443x/RFM2x - 156 Hz
   //         SX128x - 198 Hz
-  state = fsk4_setup(&radio, HORUS_FREQUENCY, HORUS_SPACING, HORUS_BAUD);
-
-  if(state == RADIOLIB_ERR_NONE) 
-  {
-    Serial.println(F("success!"));
-  } else 
-  {
-    Serial.print(F("failed, code "));
-    Serial.println(state);
-    while(true);
-  }
+  // Set the outputpower for Horus
+  Radiolib_assert(radio.setOutputPower(HORUS_POWER));
+  // Setup everything for Horus
+  Radiolib_assert(fsk4_setup(&radio, lFreq + HORUS_FREQ_OFFSET, HORUS_SPACING, HORUS_BAUD));
 }
 
-//===============================================================================
-void SetupFSK()
-{
+//============================================================================
+// Set the radio for FSK modulation
+//============================================================================
+void SetupFSK() {
   // Initialize the SX1278
   Serial.print(F("[SX1278] init.."));
 
- // int16_t state = radio.beginFSK();
- 
-  int16_t state = radio.beginFSK(FSKSettings.Frequency,
-                               FSKSettings.BitRate,
-                               FSKSettings.FreqDev,
-                               FSKSettings.RXBandwidth,
-                               FSKSettings.Power,
-                               FSKSettings.PreambleLength,
-                               FSKSettings.EnableOOK);
-
-
-  if(state == RADIOLIB_ERR_NONE) // Change this to (state == ERR_NONE) if you use an older radiolib library
-  {
-    Serial.println(F("done"));
-  } 
-  else 
-  {
-    Serial.print(F("failed, code "));
-    Serial.println(state);
-    while(true);
-  }
+  Radiolib_assert(radio.beginFSK(FSKSettings.Frequency,
+                                 FSKSettings.BitRate,
+                                 FSKSettings.FreqDev,
+                                 FSKSettings.RXBandwidth,
+                                 FSKSettings.Power,
+                                 FSKSettings.PreambleLength,
+                                 FSKSettings.EnableOOK));
 }
 
-
-//===============================================================================
-void SetupLoRa(int aMode)
-{
+//============================================================================
+// Set the radio for LoRa modulation
+//============================================================================
+void SetupLoRa(int aMode) {
   // Initialize the SX1278
   Serial.print(F("[LoRA] Initializing ... "));
 
-  ResetRadio(); 
+  ResetRadio();
 
-  switch (aMode)
-  {
-    case 0: 
+  switch (aMode) {
+    case 0:
       LoRaSettings.CodeRate = 8;
       LoRaSettings.Bandwidth = 20.8;
       LoRaSettings.SpreadFactor = 11;
       LoRaSettings.Frequency = LORA_FREQUENCY;
-      break;   
+      break;
 
     case 1:
       LoRaSettings.CodeRate = 5;
-      LoRaSettings.Bandwidth = 20.8;      
-      LoRaSettings.SpreadFactor = 6; 
-      LoRaSettings.implicitHeader = 255;     
+      LoRaSettings.Bandwidth = 20.8;
+      LoRaSettings.SpreadFactor = 6;
+      LoRaSettings.implicitHeader = 255;
       LoRaSettings.Frequency = LORA_FREQUENCY;
-    break;   
-    
+      break;
+
     case 2:
       LoRaSettings.CodeRate = 8;
-      LoRaSettings.Bandwidth = 62.5;      
+      LoRaSettings.Bandwidth = 62.5;
       LoRaSettings.SpreadFactor = 8;
-      LoRaSettings.Frequency = LORA_FREQUENCY;      
-      break;   
+      LoRaSettings.Frequency = LORA_FREQUENCY;
+      break;
 
     case 3:
       LoRaSettings.CodeRate = 6;
-      LoRaSettings.Bandwidth = 250;      
-      LoRaSettings.SpreadFactor = 7;            
+      LoRaSettings.Bandwidth = 250;
+      LoRaSettings.SpreadFactor = 7;
       LoRaSettings.Frequency = LORA_FREQUENCY;
-      break;   
-    
+      break;
+
     case 4:
       LoRaSettings.CodeRate = 5;
-      LoRaSettings.Bandwidth = 250;      
-      LoRaSettings.SpreadFactor = 6;            
+      LoRaSettings.Bandwidth = 250;
+      LoRaSettings.SpreadFactor = 6;
       LoRaSettings.Frequency = LORA_FREQUENCY;
-      break;   
+      break;
 
     case 5:
       LoRaSettings.CodeRate = 8;
-      LoRaSettings.Bandwidth = 41.7;      
-      LoRaSettings.SpreadFactor = 11;            
+      LoRaSettings.Bandwidth = 41.7;
+      LoRaSettings.SpreadFactor = 11;
       LoRaSettings.Frequency = LORA_FREQUENCY;
-    break;
+      break;
 
     case 6:
       LoRaSettings.CodeRate = 5;
-      LoRaSettings.Bandwidth = 41.7;      
-      LoRaSettings.SpreadFactor = 6;            
+      LoRaSettings.Bandwidth = 41.7;
+      LoRaSettings.SpreadFactor = 6;
       LoRaSettings.Frequency = LORA_FREQUENCY;
-    break;
+      break;
 
     case 7:
       LoRaSettings.CodeRate = 5;
-      LoRaSettings.Bandwidth = 20.8;      
-      LoRaSettings.SpreadFactor = 7;            
+      LoRaSettings.Bandwidth = 20.8;
+      LoRaSettings.SpreadFactor = 7;
       LoRaSettings.Frequency = LORA_FREQUENCY;
-    break;
+      break;
 
     case 8:
       LoRaSettings.CodeRate = 5;
-      LoRaSettings.Bandwidth = 62.5;      
-      LoRaSettings.SpreadFactor = 6;            
+      LoRaSettings.Bandwidth = 62.5;
+      LoRaSettings.SpreadFactor = 6;
       LoRaSettings.Frequency = LORA_FREQUENCY;
-    break;
+      break;
 
-
-    case 99:  // LORA-APRS
+    case 97:  // LORA-APRS UK Frequency
       LoRaSettings.CodeRate = 5;
-      LoRaSettings.Bandwidth = 125;      
-      LoRaSettings.SpreadFactor = 12;              
+      LoRaSettings.Bandwidth = 125;
+      LoRaSettings.SpreadFactor = 12;
+      LoRaSettings.Frequency = LORA_APRS_FREQUENCY_UK;
+      break;
+
+    case 98:  // LORA-APRS Poland frequency
+      LoRaSettings.CodeRate = 7;
+      LoRaSettings.Bandwidth = 125;
+      LoRaSettings.SpreadFactor = 9;
+      LoRaSettings.Frequency = LORA_APRS_FREQUENCY_PL;
+      break;
+
+    case 99:  // LORA-APRS world frequency
+      LoRaSettings.CodeRate = 5;
+      LoRaSettings.Bandwidth = 125;
+      LoRaSettings.SpreadFactor = 12;
       LoRaSettings.Frequency = LORA_APRS_FREQUENCY;
-    break;
+      break;
   }
 
-  
-  
-  int16_t state = radio.begin
-  (
-    LoRaSettings.Frequency,
-    LoRaSettings.Bandwidth,
-    LoRaSettings.SpreadFactor,
-    LoRaSettings.CodeRate,
-    LoRaSettings.SyncWord,
-    LoRaSettings.Power,
-    LoRaSettings.PreambleLength, 
-    LoRaSettings.Gain
-  );
-  
-  switch(LORA_MODE) 
-  {
+  //Add the frequency error from settings.h to the LoRa frequency
+  if (aMode < 90) {
+    LoRaSettings.Frequency += LORA_FREQ_OFFSET;
+  } else {
+    LoRaSettings.Frequency += LORA_APRS_FREQ_OFFSET;
+  }
+
+  Radiolib_assert(
+    radio.begin(
+      LoRaSettings.Frequency,
+      LoRaSettings.Bandwidth,
+      LoRaSettings.SpreadFactor,
+      LoRaSettings.CodeRate,
+      LoRaSettings.SyncWord,
+      LoRaSettings.Power,
+      LoRaSettings.PreambleLength,
+      LoRaSettings.Gain));
+
+  switch (LORA_MODE) {
     case 0:
-      radio.forceLDRO(true);
-      radio.setCRC(true);  
-    break;
+      Radiolib_assert(radio.forceLDRO(true));
+      Radiolib_assert(radio.setCRC(true));
+      break;
     case 1:
-      radio.implicitHeader(PACKETLEN);
+      Radiolib_assert(radio.implicitHeader(PACKETLEN));
       //radio.forceLDRO(true);
-      radio.setCRC(true);
-    break;
+      Radiolib_assert(radio.setCRC(true));
+      break;
     default:
-      radio.explicitHeader();
+      Radiolib_assert(radio.explicitHeader());
       //radio.autoLDRO();
-      radio.setCRC(true);
-    break;
-  }  
-  
-  if(state == RADIOLIB_ERR_NONE) // Change this to (state == ERR_NONE) if you use an older radiolib library
-  {
-    Serial.println(F("done"));
-  } 
-  else 
-  {
-    Serial.print(F("failed, code "));
-    Serial.println(state);
-    while(true);
+      Radiolib_assert(radio.setCRC(true));
+      break;
   }
 }
 
 
-//===============================================================================
-void SetupRadio()
-{
+//============================================================================
+// Initial setup of radio (more or less deprecated, I have to look into that)
+//============================================================================
+void SetupRadio() {
   // Setting up the radio
-  if (RTTY_ENABLED) {SetupRTTY();}
-  if (LORA_ENABLED) {SetupLoRa(LORA_MODE);}
+  if (RTTY_ENABLED) { SetupRTTY(); }
+  if (LORA_ENABLED) { SetupLoRa(LORA_MODE); }
 }
 
-//===============================================================================
-void sendRTTY(String TxLine)
-{
-   // Disable the GPS on the softwareserial temporarily 
-   // SerialGPS.end();
-   
-   SetupRTTY();
-   
-   // Send only idle carrier to let people get their tuning right
-   rtty.idle();     
-   delay(RTTY_IDLE_TIME);
+//============================================================================
+// Send RTTY over the radio
+//============================================================================
+void sendRTTY(String TxLine) {
+  SetupRTTY();
 
-   // Send the string 
-   Serial.print(F("Send RTTY: "));
-   Serial.println(TxLine);
+  // Send only idle carrier to let people get their tuning right
+  rtty.idle();
+  delay(RTTY_IDLE_TIME);
 
-   int state = rtty.println(TxLine); 
-   rtty.standby();   
-   // Enable the GPS again.  
-   //SerialGPS.begin(GPSBaud);
+  // Send the string
+  Serial.print(F("Send RTTY: "));
+  Serial.println(TxLine);
+  rtty.println(TxLine);
+  Radiolib_assert(rtty.standby());
 }
 
-//===============================================================================
-void ResetRadio()
-{
+//============================================================================
+// Hardware reset of the radio
+//============================================================================
+void ResetRadio() {
   // Use for ESP based boards
-  pinMode(PIN_RESET,OUTPUT);
+  pinMode(PIN_RESET, OUTPUT);
   digitalWrite(PIN_RESET, LOW);
   delay(100);
-  digitalWrite(PIN_RESET,HIGH);
+  digitalWrite(PIN_RESET, HIGH);
   delay(100);
 }
 
-//===============================================================================
-void sendLoRa(String TxLine, int aMode)
-{
-   int state;
+//============================================================================
+// Send a LoRa packet over the radio
+//============================================================================
+void sendLoRa(String TxLine, int aMode) {
+  SetupLoRa(aMode);
+  Serial.println(TxLine);
 
-   SetupLoRa(aMode);
-   Serial.println(TxLine);
-
-  switch (LORA_MODE)
-  {
+  switch (LORA_MODE) {
     case 1:
       int i;
-      int j; 
-      // Send the string 
+      int j;
+      // Send the string
       char buf[PACKETLEN];
-      for (j=0; j<PACKETLEN; j++) { buf[j] = '\0';}
-      for (i=0; i<TxLine.length(); i++) {buf[i] = TxLine[i];}
-      state = radio.transmit((uint8_t*)buf,PACKETLEN);       
-    break;
+      for (j = 0; j < PACKETLEN; j++) { buf[j] = '\0'; }
+      for (i = 0; i < TxLine.length(); i++) { buf[i] = TxLine[i]; }
+      Radiolib_assert(radio.transmit((uint8_t*)buf, PACKETLEN));
+      break;
     default:
-      // Send the string 
-      state = radio.transmit(TxLine); 
-    break;      
-  }   
-
-  if(state == RADIOLIB_ERR_NONE) // Change this to (state == ERR_NONE) if you use an older radiolib library
-  {
-    Serial.println(F("done"));
-  } else 
-  {
-    Serial.print(F("failed, code "));
-    Serial.println(state);
-  } 
+      // Send the string
+      Radiolib_assert(radio.transmit(TxLine));
+      break;
+  }
 }
 
-//===============================================================================
-void sendHorusV1()
-{
+//============================================================================
+// Send a Horus V1 packet over the radio
+//============================================================================
+void sendHorusV1() {
   int pkt_len;
   int coded_len;
-
-  // Setup the radio for Horus communication 
-  SetupHorus();
 
   // Start Horus Binary V1
   Serial.println(F("Generating Horus Binary v1 Packet"));
 
- // Generate packet for V1
+  // Generate packet for V1
   pkt_len = build_horus_binary_packet_v1(rawbuffer);
   PrintHex(rawbuffer, pkt_len, debugbuffer);
   Serial.print(F("Uncoded Length (bytes): "));
   Serial.println(pkt_len);
-  Serial.print(F("Uncoded: ")); 
+  Serial.print(F("Uncoded: "));
   Serial.println(debugbuffer);
 
- // Apply Encoding
-  coded_len = horus_l2_encode_tx_packet((unsigned char*)codedbuffer,(unsigned char*)rawbuffer,pkt_len);
+  // Apply Encoding
+  coded_len = horus_l2_encode_tx_packet((unsigned char*)codedbuffer, (unsigned char*)rawbuffer, pkt_len);
   PrintHex(codedbuffer, coded_len, debugbuffer);
   Serial.print(F("Encoded Length (bytes): "));
   Serial.println(coded_len);
   Serial.print(F("Coded: "));
   Serial.println(debugbuffer);
 
-  // Transmit!
-  Serial.println(F("Transmitting Horus Binary v1 Packet"));
-  // send out idle condition for 1000 ms
-  fsk4_idle(&radio);
-  delay(1000);
-  fsk4_preamble(&radio, 8);
-  fsk4_write(&radio, codedbuffer, coded_len);
-  Serial.println();
+  // Setup the radio for Horus communication of frequency 1
+  if (HORUS_FREQUENCY_1 != 0.0) {
+    SetupHorus(HORUS_FREQUENCY_1);
+    // Transmit!
+    Serial.print(F("Transmitting Horus Binary v1 Packet on: "));
+    Serial.print(HORUS_FREQUENCY_1);
+    Serial.println("MHz");
+    fsk4_idle(&radio);
+    delay(100);
+    fsk4_preamble(&radio, 8);
+    fsk4_write(&radio, codedbuffer, coded_len);
+    Serial.println();
+  }
+
+  // Setup the radio for Horus communication of frequency 2
+  if (HORUS_FREQUENCY_2 != 0.0) {
+    SetupHorus(HORUS_FREQUENCY_2);
+    // Transmit!
+    Serial.print(F("Transmitting Horus Binary v1 Packet on: "));
+    Serial.print(HORUS_FREQUENCY_2);
+    Serial.println("MHz");
+    fsk4_idle(&radio);
+    delay(100);
+    fsk4_preamble(&radio, 8);
+    fsk4_write(&radio, codedbuffer, coded_len);
+    Serial.println();
+  }
 }
 
-//===============================================================================
-void sendHorusV2()
-{
+//============================================================================
+// Send a Horus V2 packet over the radio
+//============================================================================
+void sendHorusV2() {
   int pkt_len;
   int coded_len;
-
-  // Setup the radio for Horus communication 
-  SetupHorus();
-
-     // Start Horus Binary V1
+  // Start Horus Binary V1
   Serial.println(F("Generating Horus Binary v2 Packet"));
 
   // Generate packet for V1
@@ -388,100 +428,148 @@ void sendHorusV2()
   PrintHex(rawbuffer, pkt_len, debugbuffer);
   Serial.print(F("Uncoded Length (bytes): "));
   Serial.println(pkt_len);
-  Serial.print(F("Uncoded: ")); 
+  Serial.print(F("Uncoded: "));
   Serial.println(debugbuffer);
 
   // Apply Encoding
-  coded_len = horus_l2_encode_tx_packet((unsigned char*)codedbuffer,(unsigned char*)rawbuffer,pkt_len);
+  coded_len = horus_l2_encode_tx_packet((unsigned char*)codedbuffer, (unsigned char*)rawbuffer, pkt_len);
   PrintHex(codedbuffer, coded_len, debugbuffer);
   Serial.print(F("Encoded Length (bytes): "));
   Serial.println(coded_len);
   Serial.print("Coded: ");
   Serial.println(debugbuffer);
-  
-  // Transmit!
-  Serial.println(F("Transmitting Horus Binary v2 Packet"));
-
-  // send out idle condition for 1000 ms
-  fsk4_idle(&radio);
-  delay(1000);
-  fsk4_preamble(&radio, 8);
-  fsk4_write(&radio, codedbuffer, coded_len);
-}
-
-//===============================================================================
-void sendLoRaAprs()
-{
-   String aprs_packet;
-   String lat="";
-   String lon="";
-   int deg;
-   int min;
-   float minute_remainder;
-   float second_remainder;
 
 
-   aprs_packet = "";
-   aprs_packet += "<\xff\x01";
-   // Add Source
-   aprs_packet += LORA_APRS_PAYLOAD_ID;
-   // Add SSID
-   aprs_packet += LORA_APRS_SSID;
-   //Add Destination (do not use digipeating)
-   aprs_packet += ">";
-   aprs_packet += "APETBT";   // destination callsign_APRS_DEST;
-   // start of "real" data (Coordinates with timestamp)
-   aprs_packet += ":@";
-   // get the APRS timestamp
-   aprs_packet += getAPRStimestamp();
-   // get the APRS latitude
-   aprs_packet += getAPRSlat(UGPS.Latitude);
-   // Add the symbol for the primary symbol table
-   aprs_packet += "/";
-   // Add the longitude
-   aprs_packet += getAPRSlon(UGPS.Longitude);
-   // Add the symbol for balloon
-   aprs_packet += "O";
-   // Add the altitude
-   aprs_packet += getAPRSAlt(UGPS.Altitude);
-   // Add a meesage
-   aprs_packet += " LoRa-APRS HAB-NL";
-
-   Serial.println("Sending LoRa APRS packet...");
-   sendLoRa(aprs_packet,LORA_APRS_MODE);
-
-}
-
-
-//===============================================================================
-// Put the radio in RX mode
-//===============================================================================
-void StartReceiveLoRaPacket()
-{
-   int16_t state;
-
-   SetupLoRa(LORA_MODE);  
-   radio.setDio0Action(setFlag, RISING);  // As of RadioLib 6.0.0 all methods to attach interrupts no longer have a default level change direction
-
-  if (LORA_MODE == 1) 
-  {
-    state  = radio.startReceive(LoRaSettings.implicitHeader);
-  } 
-  else 
-  {
-    state = radio.startReceive();
+  // Setup the radio for Horus communication of frequency 1
+  if (HORUS_FREQUENCY_1 != 0.0) {
+    SetupHorus(HORUS_FREQUENCY_1);
+    // Transmit!
+    Serial.print(F("Transmitting Horus Binary v2 Packet on: "));
+    Serial.print(HORUS_FREQUENCY_1);
+    Serial.println("MHz");
+    fsk4_idle(&radio);
+    delay(100);
+    fsk4_preamble(&radio, 8);
+    fsk4_write(&radio, codedbuffer, coded_len);
+    Serial.println();
   }
 
-   if (state == RADIOLIB_ERR_NONE) 
-   {
-     Serial.println(F("success!"));
-     Serial.print(F("[LoRa] Waiting for packets on: ")); Serial.print(LoRaSettings.Frequency,3); Serial.println(F(" MHz"));
-     Serial.println(F("----------------------------"));
-   } 
-   else 
-   {
-     Serial.print(F("failed, code "));
-     Serial.println(state);
-     // while (true);
-   }
+  // Setup the radio for Horus communication of frequency 2
+  if (HORUS_FREQUENCY_2 != 0.0) {
+    SetupHorus(HORUS_FREQUENCY_2);
+    // Transmit!
+    Serial.print(F("Transmitting Horus Binary v2 Packet on: "));
+    Serial.print(HORUS_FREQUENCY_2);
+    Serial.println("MHz");
+    fsk4_idle(&radio);
+    delay(100);
+    fsk4_preamble(&radio, 8);
+    fsk4_write(&radio, codedbuffer, coded_len);
+    Serial.println();
+  }
+}
+
+//============================================================================
+// Send a LoRa APRS packet over the radio
+//============================================================================
+void sendLoRaAprs() {
+  String aprs_packet;
+  String lat = "";
+  String lon = "";
+  int deg;
+  int min;
+  float minute_remainder;
+  float second_remainder;
+
+
+  aprs_packet = "";
+  aprs_packet += "<\xff\x01";
+  // Add Source
+  aprs_packet += LORA_APRS_PAYLOAD_ID;
+  // Add SSID
+  aprs_packet += LORA_APRS_SSID;
+  //Add Destination (do not use digipeating)
+  aprs_packet += ">";
+  aprs_packet += "APETBT";  // destination callsign_APRS_DEST;
+  // start of "real" data (Coordinates with timestamp)
+  aprs_packet += ":@";
+  // get the APRS timestamp
+  aprs_packet += getAPRStimestamp();
+  // get the APRS latitude
+  aprs_packet += getAPRSlat(UGPS.Latitude);
+  // Add the symbol for the primary symbol table
+  aprs_packet += "/";
+  // Add the longitude
+  aprs_packet += getAPRSlon(UGPS.Longitude);
+  // Add the symbol for balloon
+  aprs_packet += "O";
+  // Add the altitude
+  aprs_packet += getAPRSAlt(UGPS.Altitude);
+  // Add a meesage
+  aprs_packet += " horus 434.714 lora mode2 433.090";
+
+
+  if (LORA_APRS_WORLD_ENABLED) {
+    Serial.println("Sending LoRa APRS packet on the world frequency");
+    sendLoRa(aprs_packet, LORA_APRS_MODE);
+  }
+
+  if (LORA_APRS_PL_ENABLED && inPoland()) {
+    Serial.println("Sending LoRa APRS packet on the Poland frequency");
+    sendLoRa(aprs_packet, LORA_APRS_MODE_PL);
+  }
+
+  if (LORA_APRS_UK_ENABLED && inUK()) {
+    Serial.println("Sending LoRa APRS packet on the UK frequency");
+    sendLoRa(aprs_packet, LORA_APRS_MODE_UK);
+  }
+}
+
+
+//============================================================================
+// Send a tone on a specific frequency for calibration purposes
+// You can enable this in the settings.h file
+//============================================================================
+void FreqCalibration(float Frequency) {
+  Serial.print("Starting calibration...");
+
+  // create FSK4 client instance using the FSK module
+  FSK4Client fsk4(&radio);
+  Radiolib_assert(radio.beginFSK());
+
+  // Starting fsk4
+  Serial.print("Starting Radio...");
+  Radiolib_assert(fsk4.begin(Frequency, 270, 100));
+
+  // Send a carrier for 10 seconds, wait 5 seconds, loop.
+  while (true) {
+    fsk4.idle();
+    delay(10000);
+    fsk4.standby();
+    delay(5000);
+  }  // go on forever
+}
+
+//============================================================================
+// Put the radio in RX mode. enable this in settings. 
+// LoRa should be enabled
+//============================================================================
+void StartReceiveLoRaPacket() {
+  SetupLoRa(LORA_MODE);
+#if defined(USE_SX127X)
+  radio.setDio0Action(setFlag, RISING);  // As of RadioLib 6.0.0 all methods to attach interrupts no longer have a default level change direction
+#else
+  radio.setDio1Action(setFlag);
+#endif
+
+  if (LORA_MODE == 1) {
+    Radiolib_assert(radio.startReceive(LoRaSettings.implicitHeader));
+  } else {
+    Radiolib_assert(radio.startReceive());
+  }
+  // If we get here, we are listening on the frequency
+  Serial.print(F("[LoRa] Waiting for packets on: "));
+  Serial.print(LoRaSettings.Frequency, 3);
+  Serial.println(F(" MHz"));
+  Serial.println(F("----------------------------"));
 }

@@ -12,7 +12,6 @@ It supports sending telemetry data in mulitple formats:
 You can select multiple modes or just a single mode.
 
 It is designed to send telemetry data in the correct format for https://amateur.sondehub.org.
-As of v0.2.0 it is also capable of receiving LoRa packets and act upon that (experimental).
 
 The code is written in the Arduino IDE for ESP32 with a GPS module and a LoRa module like the sx1278 or sx1276 or Hope RFM9x.
 
@@ -20,6 +19,9 @@ The code is written in the Arduino IDE for ESP32 with a GPS module and a LoRa mo
 You will need to install two extra Arduino library from the librairy manager:
 - Radiolib
 - TinyGPS++
+
+The program also supports the BME280 environment sensor. If you enable that code, you will need Adafruit BME280 library
+
 
 # Hardware
 The minimal hardware configuration you need is:
@@ -36,14 +38,23 @@ Connect your LoRa and GPS modules to your ESP board and change the values in the
 
 # Versions
 
-V0.1.0:
-- Initial commit
-- 
+V0.3.0:
+This is a major release, so expects some bugs
+- Added assertions for the Radiolib calls. When a Radiolib call fails, the program will halt for 60secs. After that the esp32 will reboot.
+- Added dual frequency for the Horus modes. So, if you want, the program can send Horus call on two different frequencies just like many of the RS41 balloons do.
+- Added frequency offsets to all the modes. The current batches of LoRa modules do not have very accurate oscillators on board. You can now specify a frequency offset.
+- Added a calibration mode. Just a simple function to determine the frequency error of your specific module
+- Added support for SX126x and the cheap LLCC68 modules. Note that the LLCC68 modules cannot do LoRa APRS
+- Added very basic support for APRS (besides the already existing LoRa-APRS). This function iscurrently not really stable. Some RF chips work correctly, some do not.
+- Added basic option for geofencing. You can now specify specific LoRa-APRS frequencies for when your tracker is in a specific country.
+- Added support for a voltage divider so voltage can be tracked better
+- Improved programming comments
+
 V0.1.1:  
 - Added a temporary APRS device-ID (APZTBT)
 - Added a timestamp to to the APRS packets for better compatibility with Sondehub
 
-V0.2.0:
-- TBTracker got assigned its own APRS device-ID (APETBT). This is "hardcoded" into the source. Please do not change this ID, as it is used by APRS to identify the APRS packets as coming from TBTracker
-- TBTracker can now receive LoRa packets and act upon it. This can be used to release payloads or do other things. You need to enable it in settings.h. LoRa needs to enabled and RX will use the same settings as TX.
+V0.1.0:
+- Initial commit
+ 
 
