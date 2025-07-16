@@ -15,8 +15,12 @@ SX1278 radio = new Module(PIN_NSS, PIN_DIO0, PIN_RESET, PIN_DIO1);
 #if defined(USE_LLCC68)
 LLCC68 radio = new Module(PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY);
 #else
-#if defined(USE_SX126X)
+#if defined(USE_SX1268)
 SX1268 radio = new Module(PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY);
+#else
+#if defined(USE_SX1262)
+SX1262 radio = new Module(PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY);
+#endif
 #endif
 #endif
 #endif
@@ -122,13 +126,24 @@ void SendAPRS() {
 //============================================================================
 void SetupHorus(float lFreq) {
   Serial.println();
-  Serial.print("Setting up radio for Horus...");
+  Serial.println("Setting up radio for Horus...");
 // Initialize the radio in FSK mode
-#if defined(USE_SX126X)
-  Radiolib_assert(radio.beginFSK(434.0, 4.8, 5.0, 156.2, 10, 16, 0, false));
+#if defined(USE_SX1262)
+  Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
 #else
-  Radiolib_assert(radio.beginFSK());
+#if defined(USE_SX1268)
+   Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
+#else 
+#if defined(USE_SX127X)  
+  Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx127, FSK_POWER, FSK_PREAMBLELENGTH, FSK_ENABLEOOK));
+#else
+#if defined (USE_LLCC68)  
+  Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
 #endif
+#endif
+#endif
+#endif
+
 
   Serial.print(F("[FSK4] Initializing ... "));
   // initialize FSK4 transmitter
@@ -152,16 +167,25 @@ void SetupHorus(float lFreq) {
 // Set the radio for FSK modulation
 //============================================================================
 void SetupFSK() {
-  // Initialize the SX1278
-  Serial.print(F("[SX1278] init.."));
 
-  Radiolib_assert(radio.beginFSK(FSKSettings.Frequency,
-                                 FSKSettings.BitRate,
-                                 FSKSettings.FreqDev,
-                                 FSKSettings.RXBandwidth,
-                                 FSKSettings.Power,
-                                 FSKSettings.PreambleLength,
-                                 FSKSettings.EnableOOK));
+  Serial.println();
+  Serial.print("Setting up radio for RTTY...");
+// Initialize the radio in FSK mode
+#if defined(USE_SX1262)
+  Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
+#else
+#if defined(USE_SX1268)
+   Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
+#else 
+#if defined(USE_SX127X)  
+  Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx127, FSK_POWER, FSK_PREAMBLELENGTH, FSK_ENABLEOOK));
+#else
+#if defined (USE_LLCC68)  
+  Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
+#endif
+#endif
+#endif
+#endif  
 }
 
 //============================================================================
@@ -267,6 +291,30 @@ void SetupLoRa(int aMode) {
     LoRaSettings.Frequency += LORA_APRS_FREQ_OFFSET;
   }
 
+#if defined(USE_SX1262)
+  Radiolib_assert(
+    radio.begin(
+      LoRaSettings.Frequency,
+      LoRaSettings.Bandwidth,
+      LoRaSettings.SpreadFactor,
+      LoRaSettings.CodeRate,
+      LoRaSettings.SyncWord,
+      LoRaSettings.Power,
+      LoRaSettings.PreambleLength,
+      USE_TCXO));
+#else
+#if defined(USE_SX1268)
+  Radiolib_assert(
+    radio.begin(
+      LoRaSettings.Frequency,
+      LoRaSettings.Bandwidth,
+      LoRaSettings.SpreadFactor,
+      LoRaSettings.CodeRate,
+      LoRaSettings.SyncWord,
+      LoRaSettings.Power,
+      LoRaSettings.PreambleLength,
+      USE_TCXO));
+#else
   Radiolib_assert(
     radio.begin(
       LoRaSettings.Frequency,
@@ -277,6 +325,8 @@ void SetupLoRa(int aMode) {
       LoRaSettings.Power,
       LoRaSettings.PreambleLength,
       LoRaSettings.Gain));
+#endif
+#endif
 
   switch (LORA_MODE) {
     case 0:
@@ -506,7 +556,8 @@ void sendLoRaAprs() {
   // Add the altitude
   aprs_packet += getAPRSAlt(UGPS.Altitude);
   // Add a meesage
-  aprs_packet += " horus 434.714 lora mode2 433.090";
+  aprs_packet += " "; 
+  aprs_packet += LORA_APRS_CUSTOM_MESSAGE;
 
 
   if (LORA_APRS_WORLD_ENABLED) {

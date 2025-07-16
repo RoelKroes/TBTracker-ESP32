@@ -3,7 +3,7 @@
 //============================================================================
 
 //============================================================================
-// PIN NUMBERS for SX127x and SPI interface
+// PIN NUMBERS for the RF modules and SPI interface
 //  
 // Change if needed
 // the default pins for my ESP32-S2 are: SCK=36, MISO=37, MOSI=35, CS=34 
@@ -22,18 +22,37 @@
 //============================================================================
 // Define which radiochip you use
 // Comment out the one you do not use
+// Currently sx1278, sx1262, sx1268 and LLCC68 are supported
 //============================================================================
 #define USE_SX127X
-//#define USE_LLCC68
-//#define USE_SX126X
+// #define USE_LLCC68
+// #define USE_SX1268
+// #define USE_SX1262   
 
-// pin numbers
+//============================================================================
+// Define the use of a TCXO
+// This is only supported for the SX126x series of RF modules
+// Enter the voltage for the TCXO
+// Possible values are 1.6 or 0
+// Most of the time the sx1262 needs 1.6 (with TCXO) and the sx1268/sx127x needs 0.0 (without TCXO)
+// If you pick the wrong value, you will usuallyget an error -707
+//============================================================================
+// Possible values are 1.6 or 0
+#define USE_TCXO 0.0
+
+//============================================================================
+// Define the pin numbers for the connection from the esp32 to the RF module
+// Not all pin numbers are used for the different RF modules
+// For the sx127x series: PIN_NSS, PIN_DIO0, PIN_RESET, PIN_DIO1 and PIN_DIO2 is you use AFSK APRS
+// For the SX126x and LLCC68 series: PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY and PIN_DIO2 if you use AFSKL APRS
+//============================================================================
 #define PIN_NSS 34
 #define PIN_DIO0 38
-#define PIN_BUSY 4  // sx1262
+#define PIN_BUSY 4     
 #define PIN_RESET 33
 #define PIN_DIO1 3
-#define PIN_DIO2 4  // Used for AFSK / APRS
+#define PIN_DIO2 4  // Only used for AFSK / APRS
+
 
 //============================================================================
 // Enable these lines if you want to use a voltage divider to read voltage information
@@ -41,11 +60,11 @@
 // your own code. 
 // Comment the five lines below out if you do not use a voltage divider
 //============================================================================
-// #define USE_VOLTAGE_INFO
-// #define VOLTAGE_IN_PIN 2          // Pin number to which the voltage divider is connected
-// #define VOLTAGE_DIVIDER_R1 10000  // in Ohm
-// #define VOLTAGE_DIVIDER_R2 20000  // in Ohm
-// #define VOLTAGE_DEVIATION 0.00    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
+//#define USE_VOLTAGE_INFO
+//#define VOLTAGE_IN_PIN 2          // Pin number to which the voltage divider is connected
+//#define VOLTAGE_DIVIDER_R1 10000  // in Ohm
+//#define VOLTAGE_DIVIDER_R2 20000  // in Ohm
+//#define VOLTAGE_DEVIATION 0.00    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
 
 //============================================================================
 // Enable this if you have a BME280 sensor
@@ -53,9 +72,9 @@
 // your own code. 
 // Comment the three lines below out if you do not use a bme280 sensor
 //============================================================================
-// #define USE_BME280
-// #define SDA_PIN 8  // your SDA pin for the I2C protocol
-// #define SCL_PIN 9  // your SCL pin for the I2C protocol
+//#define USE_BME280
+//#define SDA_PIN 8  // your SDA pin for the I2C protocol
+//#define SCL_PIN 9  // your SCL pin for the I2C protocol
 
 //============================================================================
 // Enable this if you want to calibrate your radio module.
@@ -79,13 +98,13 @@
 //============================================================================
 #define RTTY_ENABLED false        // Set to true if you want RTTY transmissions
 #define RTTY_PAYLOAD_ID "MYCALL"  // This will show on Sondehub. Payload ID for RTTY protocol. CHANGE THIS!
-#define RTTY_FREQUENCY 433.775    // in MHz
+#define RTTY_FREQUENCY 437.600    // in MHz
 #define RTTY_SHIFT 610            // in increments of 61. 610 is usually a good value.
 #define RTTY_BAUD 100             // Baud rate. You should set this to 50 or 100 usually
 #define RTTY_STOPBITS 2           // Usually leave this at 2
-#define RTTY_PREFIX "$$$$$$"      // As RTTY with the sx127x chip is challenging, prefix with at least 4x$
+#define RTTY_PREFIX "$$$$$$"      // As RTTY with the sx12xx series chips is challenging, prefix with at least 4x$
 #define RTTY_REPEATS 1            // number of RTTY transmits during a cycle, usually set to 1
-#define RTTY_LOOPTIME 45          // Transmit RTTY every xx seconds
+#define RTTY_LOOPTIME 40          // Transmit RTTY every xx seconds
 #define RTTY_IDLE_TIME 4000       // Idle carrier in ms before sending actual RTTY string. \
                                   // Set to a low value (i.e. 1000 or lower) if you have a very frequency stable signal \
                                   // Set to a high value (i.e. 5000 or even higher) if you have a hard time to tune the signal
@@ -109,7 +128,7 @@
 #define LORA_ENABLED false        // Set to true if you want LoRa transmissions
 #define RECEIVING_ENABLED false   // Set to true if you want the tracker to listen on the LoRa frequency for incoming packets
 #define LORA_PAYLOAD_ID "MYCALL"  // This will show on Sondehub. Payload ID for LoRa protocol. CHANGE THIS!
-#define LORA_FREQUENCY 433.090    // in MHz
+#define LORA_FREQUENCY 432.662    // in MHz
 #define LORA_MODE 2               // Mode 2 is usually used for simple telemetry data
 #define LORA_REPEATS 1            // number of LoRa transmits during a cycle
 #define LORA_LOOPTIME 40          // Transmit LoRa every xx seconds
@@ -125,7 +144,7 @@
 #define LORA_APRS_PL_ENABLED true        // Set to True if you want LORA-APRS transmissions on the Poland frequency 434.855 (LORA_APRS_ENABLED must be set to true)
 #define LORA_APRS_UK_ENABLED true        // Set to True if you want LORA-APRS transmissions on the UK frequency 439.9125 (LORA_APRS_ENABLED must be set to true)
 #define LORA_APRS_PAYLOAD_ID "MYCALL"    // CHANGE THIS. This will show on Sondehub. For LORA-APRS this should be a HAM call without SSID.
-#define LORA_APRS_SSID "-11"             // 11 is the symbol for balloon
+#define LORA_APRS_SSID "-11"             // 11 is the symbol for balloon. Use quotes like this: "-11"
 #define LORA_APRS_MODE 99                // Do not change
 #define LORA_APRS_MODE_PL 98             // Do not change
 #define LORA_APRS_MODE_UK 97             // Do not change
@@ -134,6 +153,7 @@
 #define LORA_APRS_FREQUENCY_UK 439.9125  // LORA-APRS used in the UK on 439.9125 at about 300bd
 #define LORA_APRS_LOOPTIME 180           // Set this rather high (>120s), so you won't be flagged for misusing the APRS network
 #define LORA_APRS_FREQ_OFFSET 0.0        // Frequency deviation. Will be added to the LoRa APRS frequency. Should be a float and can be negative.
+#define LORA_APRS_CUSTOM_MESSAGE "BALLOON" // Custom message that will be added to the LoRa APRS telemetry and will be visible on APRS and Sondehub. Use quotes.
 
 //============================================================================
 // HORUSBINARY SETTINGS
@@ -149,7 +169,7 @@
 //#define PAYLOAD_ID_V2  256
 //============================================================================
 #define HORUS_V1_ENABLED true     // Set to true if you want HorusBinary V1 transmissions (you can do both V1 and V2 transmissions)
-#define HORUS_V2_ENABLED false      // Set to true if you want HorusBinary V2 transmissions
+#define HORUS_V2_ENABLED false     // Set to true if you want HorusBinary V2 transmissions
 #define PAYLOAD_ID_V1 0            // See above. Set to 0 if you do not have apayload ID
 #define PAYLOAD_ID_V2 256          // See above. Set to 256 if you do not have apayload ID
 #define HORUS_FREQUENCY_1 434.714  // Horus can transmit on two frequencies
@@ -157,19 +177,22 @@
 #define HORUS_POWER 13             // In dBm. Valid values +2 to +17 dBm. 10dBm = 10mW, 13dBm=20mW (recommended)
 #define HORUS_BAUD 100             // recommended 50 (8MHz processor) or 100 baud (16MHz, better processor or esp32)
 #define HORUS_SPACING 270          // NOTE: This results in a shift of 244 Hz on the sx127x due to the PLL Resolution of the SX127x which is 61Hz
-#define HORUS_LOOPTIME 30          // Transmit Horus every xx seconds
+#define HORUS_LOOPTIME 40          // Transmit Horus every xx seconds
 #define HORUS_FREQ_OFFSET 0.0      // Frequency deviation of the radio module. This will be added to HORUS_FREQUENCY
 
 
 //============================================================================
 // "Standard" AFSK APRS SETTINGS
-//  This is very experimental. The analog tones are simultated through PCM block waves.
+// This is very experimental. The analog tones are simultated through PCM block waves.
 // Also, for this to work you need DIO2 of the RF chip to be connected.
 // Personalize when you have AFSK_APRS set to true and you want APRS transmissions
+//
+// At this moment, AFSK APRS only works for boards using the original ESP32 MCU's (which are in the T-BEAM's and LILYGO boards)
+// AFSK APRS does currently not work for the Sx and Cx ESP32 series. But we are working on that :-)
 //============================================================================
 #define APRS_AFSK_ENABLED false      // Set this to true if you want APRS transmissions
 #define APRS_AFSK_CALLSIGN "NOCALL"  // CHANGE THIS and use quotation marks. This will show on Sondehub. For APRS this should be a HAM call without SSID.
-#define APRS_AFSK_LOOPTIME 30        // Transmit APRS every xx seconds
+#define APRS_AFSK_LOOPTIME 180       // Transmit APRS every xx seconds. Set this to something >= 120 seconds
 #define APRS_AFSK_SSID 11            // SSID. You can use 11 for a HAM balloon
 #define APRS_AFSK_PREAMBLE 100       // I got good results with 100 but you can go as low as 8
 #define APRS_AFSK_POWER 13           // In dBm. Valid values +2 to +17 dBm. 10dBm = 10mW, 13dBm=20mW
@@ -267,13 +290,16 @@ static const uint32_t GPSBaud = 9600;  // modern devices are 9600 baud. some are
 //============================================================================
 // DEFAULT FSK SETTINGS
 //  
-// Normally needs no change / for testing purposes
+// You can change this and it will alter the default FSK settings
+// Some of these settings are overridden in the setup of the different modes (see above)
 //============================================================================
-#define FSK_FREQUENCY 432.662
-#define FSK_BITRATE 100.0
-#define FSK_FREQDEV 50.0
-#define FSK_RXBANDWIDTH 125.0
-#define FSK_POWER 13  // in dBm between 2 and 17. 10 = 10mW (recommended). Sets also RTTY power
+#define FSK_FREQUENCY 434.0
+#define FSK_BITRATE 4.8
+#define FSK_FREQDEV 5.0
+#define FSK_RXBANDWIDTH_sx127 125.0
+#define FSK_RXBANDWIDTH_sx126 156.2 
+#define FSK_POWER 10  // default power setting in dBm between 2 and 17. 10 = 10mW (recommended). Sets also RTTY power
 #define FSK_PREAMBLELENGTH 16
 #define FSK_ENABLEOOK false
 #define FSK_DATASHAPING 0.5
+#define FSK_USERREGULATORLDO false

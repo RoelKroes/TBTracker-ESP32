@@ -11,7 +11,8 @@
 #include "esp32-hal-cpu.h"
 #include "horus_l2.h"
 
-#define TBTRACKER_VERSION v0.3.0
+#define TBTRACKER_VERSION v0.3.2
+
 
 //============================================================================
 // DATA STRUCTS
@@ -42,18 +43,6 @@ struct TLoRaSettings {
   uint8_t Gain = LORA_GAIN;
   size_t implicitHeader = 255;
 } LoRaSettings;
-
-// Struct to hold FSK settings
-struct TFSKSettings {
-  float Frequency = FSK_FREQUENCY;
-  float BitRate = FSK_BITRATE;
-  float FreqDev = FSK_FREQDEV;
-  float RXBandwidth = FSK_RXBANDWIDTH;
-  int8_t Power = FSK_POWER;  // in dbM range 2 - 17
-  uint16_t PreambleLength = FSK_PREAMBLELENGTH;
-  bool EnableOOK = FSK_ENABLEOOK;
-  float dataShaping = FSK_DATASHAPING;
-} FSKSettings;
 
 // Struct to hold RTTY settings
 struct TRTTYSettings {
@@ -197,6 +186,9 @@ void setup() {
   // Setup Serial for debugging
   Serial.begin(115200);
   delay(1000);
+  
+  // Write the version information
+  write_version_info();
   
   // Start the SPI interface
   SPI.begin(SCK, MISO, MOSI, CS);

@@ -6,6 +6,7 @@ It supports sending telemetry data in mulitple formats:
 - RTTY
 - LoRa
 - LoRa-APRS
+- APRS (AFSK)
 - Horus 4FSK V1
 - Horus 4FSK V2
 
@@ -27,7 +28,7 @@ The program also supports the BME280 environment sensor. If you enable that code
 The minimal hardware configuration you need is:
 - ESP32 or ESP32S2 board
 - GPS module (recommended Ublox Neo or ATGM336H)
-- Lora module (sx1278 or sx1276 or Hope RFM9x module)
+- Lora module (sx1278, sx1276, sx1268, sx1262, LLCC68 (not suitable for LoRa-APRS) or Hope RFM9x module)
 
 # Horusbinary_radiolib
 The radio related basecode for this sketch was taken from the horusbinary_radiolib project.
@@ -36,7 +37,17 @@ See: https://github.com/projecthorus/horusbinary_radiolib
 # Installation
 Connect your LoRa and GPS modules to your ESP board and change the values in the settings.h file.See the comments in the settings.h file. Compile in the Arduino IDE and upload to your board.
 
+# APRS (AFSK)
+At this moment APRS with AFSK only works on the "original" ESP32 series and not on the ESP32-Sx and ESP32-Cx versions. We are working on this problem.
+
 # Versions
+
+V0.3.2
+- Radiolib backward version compatibility for Horus FSK4 in FSK4_MOD module. 
+- Compatibility with SX1262
+- Free text with LoRa APRS 
+- Added module to print version and settings info
+
 
 V0.3.0:
 This is a major release, so expects some bugs
