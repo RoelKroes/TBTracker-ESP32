@@ -132,7 +132,7 @@
 #define LORA_MODE 2               // Mode 2 is usually used for simple telemetry data
 #define LORA_REPEATS 1            // number of LoRa transmits during a cycle
 #define LORA_LOOPTIME 40          // Transmit LoRa every xx seconds
-#define LORA_FREQ_OFFSET 0.0      // Frequency deviation. Will be added to the LoRa frequency. Should be a float and can be negative.
+#define LORA_FREQ_OFFSET 0.0      // Frequency deviation in MHz. Will be added to the LoRa frequency. Should be a float and can be negative.
 
 //============================================================================
 // LORA-APRS SETTINGS
