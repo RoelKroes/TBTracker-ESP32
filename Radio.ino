@@ -330,17 +330,18 @@ void SetupLoRa(int aMode) {
 
   switch (LORA_MODE) {
     case 0:
+      Radiolib_assert(radio.explicitHeader());
       Radiolib_assert(radio.forceLDRO(true));
       Radiolib_assert(radio.setCRC(true));
       break;
     case 1:
       Radiolib_assert(radio.implicitHeader(PACKETLEN));
-      //radio.forceLDRO(true);
+      Radiolib_assert(radio.autoLDRO());
       Radiolib_assert(radio.setCRC(true));
       break;
     default:
       Radiolib_assert(radio.explicitHeader());
-      //radio.autoLDRO();
+      Radiolib_assert(radio.autoLDRO());
       Radiolib_assert(radio.setCRC(true));
       break;
   }
@@ -624,3 +625,4 @@ void StartReceiveLoRaPacket() {
   Serial.println(F(" MHz"));
   Serial.println(F("----------------------------"));
 }
+
