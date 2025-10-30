@@ -123,7 +123,7 @@
 // 6 = (uplink 868,             2800 baud)  Explicit mode, Error coding 4:5, Bandwidth 41.7kHz, SF 6, Low data rate optimize off - SUPPORTED
 // 7 = (Telnet comms 434,       2800 baud)  Explicit mode, Error coding 4:5, Bandwidth 20.8kHz, SF 7, Low data rate optimize off - SUPPORTED
 // 8 = (SSDV repeater,          4500 baud)  Explicit mode, Error coding 4:5, Bandwidth 62.5kHz, SF 6, Low data rate optimize off - SUPPORTED
-// 99 = (World wide LoRa-APRS mode at 433.775MHz, Explicit mode, Error coding 4:5, Bandwidth 125kHz, SF 12,Low data rate optimize off - SUPPORTED  )
+// 99 = (World wide LoRa-APRS mode at 433.775MHz, Explicit mode, Error coding 4:5, Bandwidth 125kHz, SF 12,Low data rate optimize on - SUPPORTED  )
 //============================================================================
 #define LORA_ENABLED false        // Set to true if you want LoRa transmissions
 #define RECEIVING_ENABLED false   // Set to true if you want the tracker to listen on the LoRa frequency for incoming packets
@@ -152,7 +152,7 @@
 #define LORA_APRS_FREQUENCY_PL 434.855   // LORA-APRS used in Poland on 434.855 at about 1200bd
 #define LORA_APRS_FREQUENCY_UK 439.9125  // LORA-APRS used in the UK on 439.9125 at about 300bd
 #define LORA_APRS_LOOPTIME 180           // Set this rather high (>120s), so you won't be flagged for misusing the APRS network
-#define LORA_APRS_FREQ_OFFSET 0.0        // Frequency deviation. Will be added to the LoRa APRS frequency. Should be a float and can be negative.
+#define LORA_APRS_FREQ_OFFSET 0.0        // Frequency deviation in MHz. Will be added to the LoRa APRS frequency. Should be a float and can be negative.
 #define LORA_APRS_CUSTOM_MESSAGE "BALLOON" // Custom message that will be added to the LoRa APRS telemetry and will be visible on APRS and Sondehub. Use quotes.
 
 //============================================================================
@@ -178,7 +178,7 @@
 #define HORUS_BAUD 100             // recommended 50 (8MHz processor) or 100 baud (16MHz, better processor or esp32)
 #define HORUS_SPACING 270          // NOTE: This results in a shift of 244 Hz on the sx127x due to the PLL Resolution of the SX127x which is 61Hz
 #define HORUS_LOOPTIME 40          // Transmit Horus every xx seconds
-#define HORUS_FREQ_OFFSET 0.0      // Frequency deviation of the radio module. This will be added to HORUS_FREQUENCY
+#define HORUS_FREQ_OFFSET 0.0      // Frequency deviation in MHz. This will be added to HORUS_FREQUENCY
 
 
 //============================================================================
@@ -197,7 +197,7 @@
 #define APRS_AFSK_PREAMBLE 100       // I got good results with 100 but you can go as low as 8
 #define APRS_AFSK_POWER 13           // In dBm. Valid values +2 to +17 dBm. 10dBm = 10mW, 13dBm=20mW
 #define APRS_AFSK_FREQUENCY 432.500  // 70cm APRS frequency. Seems still experimental
-#define APRS_AFSK_FREQ_OFFSET 0.0    // Frequency deviation of the radio module. This will be added to APRS_AFSK_FREQUENCY
+#define APRS_AFSK_FREQ_OFFSET 0.0    // Frequency deviation in MHz. This will be added to APRS_AFSK_FREQUENCY
 
 //============================================================================
 // GPS SETTINGS
