@@ -5,7 +5,7 @@ TBTracker-ESP32 is an Arduino sketch for a tracker for high altitude weather or 
 It supports sending telemetry data in mulitple formats:
 - RTTY
 - LoRa
-- LoRa-APRS
+- LoRa-APRS (with environmental data in the comment field)
 - APRS (AFSK)
 - Horus 4FSK V1
 - Horus 4FSK V2
@@ -21,7 +21,7 @@ You will need to install two extra Arduino library from the librairy manager:
 - Radiolib
 - TinyGPS++
 
-The program also supports the BME280 environment sensor. If you enable that code, you will need Adafruit BME280 library
+The program also supports the BME280 environment sensor. If you enable that code, you will need the Adafruit BME280 library
 
 
 # Hardware
@@ -42,12 +42,19 @@ At this moment APRS with AFSK only works on the "original" ESP32 series and not 
 
 # Versions
 
+V0.3.3
+New variables were defined in settings.h, so use the settings.h file that comes with this version
+- Radiolib v7.4.0 compatibility
+- Fixed some bugs with LoRa-APRS transmissions
+- Added extra documentation in the settings.h file
+- Added a GPS communication test at startup so you can check the correct setup of your GPS module
+- Add optional extra fields in the LoRa-APRS comment string: Battery voltage, Temperature, Humidity, Air pressure
+
 V0.3.2
 - Radiolib backward version compatibility for Horus FSK4 in FSK4_MOD module. 
 - Compatibility with SX1262
 - Free text with LoRa APRS 
 - Added module to print version and settings info
-
 
 V0.3.0:
 This is a major release, so expects some bugs

@@ -556,8 +556,20 @@ void sendLoRaAprs() {
   aprs_packet += "O";
   // Add the altitude
   aprs_packet += getAPRSAlt(UGPS.Altitude);
-  // Add a meesage
-  aprs_packet += " "; 
+  // Add the voltage only if it was defined in the settings file
+#if defined(USE_VOLTAGE_IN_APRS)
+  aprs_packet += " " + String(ReadVCC(),2) + "V";
+#endif
+#if defined(USE_BME280_TEMP_IN_APRS)
+  aprs_packet += " " + String(bme280_temperature(),0) + "C"; 
+#endif
+#if defined(USE_BME280_PRESSURE_IN_APRS)
+  aprs_packet += " " + String(bme280_pressure(),0) + "hPa"; 
+#endif
+#if defined(USE_BME280_HUMIDITY_IN_APRS)
+  aprs_packet += " " + String(bme280_humidity(),0) + "%"; 
+#endif
+  aprs_packet += " " ;
   aprs_packet += LORA_APRS_CUSTOM_MESSAGE;
 
 

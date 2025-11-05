@@ -31,11 +31,10 @@
 
 //============================================================================
 // Define the use of a TCXO
-// This is only supported for the SX126x series of RF modules
 // Enter the voltage for the TCXO
 // Possible values are 1.6 or 0
-// Most of the time the sx1262 needs 1.6 (with TCXO) and the sx1268/sx127x needs 0.0 (without TCXO)
-// If you pick the wrong value, you will usuallyget an error -707
+// Most of the time the sx126x needs 1.6 (with TCXO) and the sx127x needs 0.0 (without TCXO)
+// If you pick the wrong value, you will usually get an error -707
 //============================================================================
 // Possible values are 1.6 or 0
 #define USE_TCXO 0.0
@@ -58,23 +57,41 @@
 // Enable these lines if you want to use a voltage divider to read voltage information
 // A template of the code for the voltage divider is in ADC.ino. Or you can write
 // your own code. 
+//
+// Voltage Divider Schematic
+//
+//      Vin (Battery or Solar)
+//      |
+//      R1
+//      |
+//      +---- Voltage_in_pin (Pin x from ESP32)
+//      |
+//      R2
+//      |
+//      GND
+//
 // Comment the five lines below out if you do not use a voltage divider
 //============================================================================
-//#define USE_VOLTAGE_INFO
+//#define USE_VOLTAGE_INFO          // Uncomment this if you use a voltage divider
 //#define VOLTAGE_IN_PIN 2          // Pin number to which the voltage divider is connected
 //#define VOLTAGE_DIVIDER_R1 10000  // in Ohm
 //#define VOLTAGE_DIVIDER_R2 20000  // in Ohm
 //#define VOLTAGE_DEVIATION 0.00    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
+//#define USE_VOLTAGE_IN_APRS       // If you uncomment this, the voltage information will be added to the APRS comment field
 
 //============================================================================
 // Enable this if you have a BME280 sensor
 // A template of the code for the BME280 is in bme280.ino. Or you can write
 // your own code. 
-// Comment the three lines below out if you do not use a bme280 sensor
+// Comment the lines below out if you do not use a bme280 sensor
 //============================================================================
-//#define USE_BME280
-//#define SDA_PIN 8  // your SDA pin for the I2C protocol
-//#define SCL_PIN 9  // your SCL pin for the I2C protocol
+//#define USE_BME280                  // Uncomment this line if you use a BME280 sensor 
+//#define USE_BME280_TEMP_IN_APRS     // If you uncomment this, the temperature reading from the BME280 will be added to the APRS comment field
+//#define USE_BME280_PRESSURE_IN_APRS // If you uncomment this, the pressure reading from the BME280 will be added to the APRS comment field
+//#define USE_BME280_HUMIDITY_IN_APRS // If you uncomment this, the humidity reading from the BME280 will be added to the APRS comment field
+
+//#define SDA_PIN 8  // your SDA pin for the I2C protocol (needed for BME280 sensor)
+//#define SCL_PIN 9  // your SCL pin for the I2C protocol (needed for BME280 sensor) 
 
 //============================================================================
 // Enable this if you want to calibrate your radio module.
@@ -143,7 +160,7 @@
 #define LORA_APRS_WORLD_ENABLED true     // Set to true if you want LORA-APRS transmissions on the world frequency 433.775 (LORA_APRS_ENABLED must be set to true)
 #define LORA_APRS_PL_ENABLED true        // Set to True if you want LORA-APRS transmissions on the Poland frequency 434.855 (LORA_APRS_ENABLED must be set to true)
 #define LORA_APRS_UK_ENABLED true        // Set to True if you want LORA-APRS transmissions on the UK frequency 439.9125 (LORA_APRS_ENABLED must be set to true)
-#define LORA_APRS_PAYLOAD_ID "MYCALL"    // CHANGE THIS. This will show on Sondehub. For LORA-APRS this should be a HAM call without SSID.
+#define LORA_APRS_PAYLOAD_ID "NOCALL"    // CHANGE THIS. This will show on Sondehub. For LORA-APRS this should be a HAM call without SSID.
 #define LORA_APRS_SSID "-11"             // 11 is the symbol for balloon. Use quotes like this: "-11"
 #define LORA_APRS_MODE 99                // Do not change
 #define LORA_APRS_MODE_PL 98             // Do not change
@@ -168,7 +185,7 @@
 //#define PAYLOAD_ID_V1  0
 //#define PAYLOAD_ID_V2  256
 //============================================================================
-#define HORUS_V1_ENABLED true     // Set to true if you want HorusBinary V1 transmissions (you can do both V1 and V2 transmissions)
+#define HORUS_V1_ENABLED false     // Set to true if you want HorusBinary V1 transmissions (you can do both V1 and V2 transmissions)
 #define HORUS_V2_ENABLED false     // Set to true if you want HorusBinary V2 transmissions
 #define PAYLOAD_ID_V1 0            // See above. Set to 0 if you do not have apayload ID
 #define PAYLOAD_ID_V2 256          // See above. Set to 256 if you do not have apayload ID

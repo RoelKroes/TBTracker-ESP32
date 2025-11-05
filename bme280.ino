@@ -64,7 +64,7 @@ void printbme280Data() {
   Serial.print(F("   Pressure: "));
   Serial.print(bme280_pressure());
   Serial.println(" hPa");
-  Serial.print(F("    Humidty: "));
+  Serial.print(F("   Humidity: "));
   Serial.print(bme280_humidity());
   Serial.println(" %");
 #endif

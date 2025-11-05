@@ -196,6 +196,9 @@ void setup() {
   // Setup the GPS
   SerialGPS.begin(GPSBaud, SERIAL_8N1, Tx, Rx);
 
+  // Test communication with the GPS for 2 seconds
+  GPSCommTest(2000);
+
   // Setup the Radio
   ResetRadio();
   SetupRadio();

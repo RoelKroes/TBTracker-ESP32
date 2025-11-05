@@ -11,6 +11,23 @@ void CheckGPS() {
   processGPSData();
 }
 
+//============================================================================
+// Check the communication with the GPS
+//============================================================================
+static void GPSCommTest(unsigned long ms)
+{
+  unsigned long start = millis();
+  Serial.println("---START GPS COMMUNICATION CHECK---");
+  Serial.println("-----------------------------------");
+  do 
+  {
+    if (SerialGPS.available())
+       Serial.write(SerialGPS.read());
+  } while (millis() - start < ms);
+  Serial.println("-----------------------------------");
+  Serial.println("----END GPS COMMUNICATION CHECK----");
+  Serial.println();
+}
 
 //============================================================================
 // This custom version of delay() ensures that the gps object is being "fed".
