@@ -11,7 +11,7 @@
 #include "esp32-hal-cpu.h"
 #include "horus_l2.h"
 
-#define TBTRACKER_VERSION v0.3.2
+#define TBTRACKER_VERSION v0.3.3
 
 
 //============================================================================
