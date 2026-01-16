@@ -6,140 +6,150 @@
 //  Have FUN!
 //============================================================================
 #define TBTRACKER_VERSION_MAJOR  0
-#define TBTRACKER_VERSION_MINOR  3
-#define TBTRACKER_VERSION_PATCH  3
+#define TBTRACKER_VERSION_MINOR  4
+#define TBTRACKER_VERSION_PATCH  0
 #define TBTRACKER_VERSION_EXTRA  0
 
 #define TBTRACKER_VERSION (((TBTRACKER_VERSION_MAJOR) << 24) | ((TBTRACKER_VERSION_MINOR) << 16) | ((TBTRACKER_VERSION_PATCH) << 8) | (TBTRACKER_VERSION_EXTRA))
 
 void write_version_info() 
 {
-   Serial.println("=======================================================================");
-   Serial.println("Welcome to TBTracker-esp32 by Roel Kroes");
-   Serial.println("Get the latest version at: https://github.com/RoelKroes/TBTracker-ESP32");
-   Serial.println(""); 
-   Serial.print("TBTracker version: ");
-   Serial.print(TBTRACKER_VERSION_MAJOR); Serial.print(".");
-   Serial.print(TBTRACKER_VERSION_MINOR); Serial.print(".");
-   Serial.println(TBTRACKER_VERSION_PATCH); 
-   Serial.print(" Radiolib version: ");
-   Serial.print(RADIOLIB_VERSION_MAJOR); Serial.print(".");
-   Serial.print(RADIOLIB_VERSION_MINOR); Serial.print(".");
-   Serial.println(RADIOLIB_VERSION_PATCH);Serial.println(); 
+   toSerialConsole("=======================================================================\n");
+   toSerialConsole("Welcome to TBTracker-esp32 by Roel Kroes\n");
+   toSerialConsole("Get the latest version at: https://github.com/RoelKroes/TBTracker-ESP32\n\n");
+   toSerialConsole("TBTracker version: ");
+   toSerialConsole(TBTRACKER_VERSION_MAJOR); toSerialConsole(".");
+   toSerialConsole(TBTRACKER_VERSION_MINOR); toSerialConsole(".");
+   toSerialConsole(TBTRACKER_VERSION_PATCH); toSerialConsole("\n");
+   toSerialConsole(" Radiolib version: ");
+   toSerialConsole(RADIOLIB_VERSION_MAJOR); toSerialConsole(".");
+   toSerialConsole(RADIOLIB_VERSION_MINOR); toSerialConsole(".");
+   toSerialConsole(RADIOLIB_VERSION_PATCH); toSerialConsole("\n");
 
    // RTTY
-   Serial.print("RTTY ");   
+   toSerialConsole("RTTY ");   
    if (RTTY_ENABLED)
    {
-      Serial.print("enabled -> ");
-      Serial.print(RTTY_PAYLOAD_ID);Serial.print(" ");
-      Serial.print(RTTY_FREQUENCY);Serial.print(" MHz"); 
-      Serial.print(" shift: "); Serial.print(RTTY_SHIFT);
-      Serial.print(" every "); Serial.print(RTTY_LOOPTIME); Serial.println(" seconds.");
+      toSerialConsole("enabled -> ");
+      toSerialConsole(RTTY_PAYLOAD_ID);toSerialConsole(" ");
+      toSerialConsole(RTTY_FREQUENCY);toSerialConsole(" MHz"); 
+      toSerialConsole(" shift: "); toSerialConsole(RTTY_SHIFT);
+      toSerialConsole(" every "); toSerialConsole(RTTY_LOOPTIME); toSerialConsole(" seconds."); toSerialConsole("\n");
    }
    else
    {
-      Serial.println("disabled.");
+      toSerialConsole("disabled.\n");
    }
 
    // LORA
-   Serial.print("LoRa ");   
+   toSerialConsole("LoRa ");   
    if (LORA_ENABLED)
    {
-      Serial.print("enabled -> ");
-      Serial.print(LORA_PAYLOAD_ID);Serial.print(" ");
-      Serial.print(LORA_FREQUENCY);Serial.print(" MHz"); 
-      Serial.print(" LoRa mode: "); Serial.print(LORA_MODE);
-      Serial.print(" every "); Serial.print(LORA_LOOPTIME); Serial.println(" seconds.");
+      toSerialConsole("enabled -> ");
+      toSerialConsole(LORA_PAYLOAD_ID);toSerialConsole(" ");
+      toSerialConsole(LORA_FREQUENCY);toSerialConsole(" MHz"); 
+      toSerialConsole(" LoRa mode: "); toSerialConsole(LORA_MODE);
+      toSerialConsole(" every "); toSerialConsole(LORA_LOOPTIME); toSerialConsole(" seconds.\n");
    }
    else
    {
-      Serial.println("disabled.");
+      toSerialConsole("disabled.\n");
    }
 
    // LORA APRS
-   Serial.print("LoRa APRS ");   
+   toSerialConsole("LoRa APRS ");   
    if (LORA_APRS_ENABLED)
    {
-      Serial.print("enabled -> ");
-      Serial.print(LORA_APRS_PAYLOAD_ID); Serial.print(LORA_APRS_SSID); Serial.print(" ");
-      if (LORA_APRS_WORLD_ENABLED); Serial.print(LORA_APRS_FREQUENCY);Serial.print(" MHz "); 
-      if (LORA_APRS_PL_ENABLED); Serial.print(LORA_APRS_FREQUENCY_PL);Serial.print(" MHz "); 
-      if (LORA_APRS_UK_ENABLED); Serial.print(LORA_APRS_FREQUENCY_UK);Serial.print(" MHz "); 
-      Serial.print(" every "); Serial.print(LORA_APRS_LOOPTIME); Serial.println(" seconds.");
+      toSerialConsole("enabled -> ");
+      toSerialConsole(LORA_APRS_PAYLOAD_ID); toSerialConsole(LORA_APRS_SSID); toSerialConsole(" ");
+      if (LORA_APRS_WORLD_ENABLED); toSerialConsole(LORA_APRS_FREQUENCY);toSerialConsole(" MHz "); 
+      if (LORA_APRS_PL_ENABLED); toSerialConsole(LORA_APRS_FREQUENCY_PL);toSerialConsole(" MHz "); 
+      if (LORA_APRS_UK_ENABLED); toSerialConsole(LORA_APRS_FREQUENCY_UK);toSerialConsole(" MHz "); 
+      toSerialConsole(" every "); toSerialConsole(LORA_APRS_LOOPTIME); toSerialConsole(" seconds.\n");
    }
    else
    {
-      Serial.println("disabled.");
+      toSerialConsole("disabled.\n");
    }
 
    // HORUS V1
-   Serial.print("HORUS V1 ");   
+   toSerialConsole("HORUS V1 ");   
    if (HORUS_V1_ENABLED)
    {
-      Serial.print("enabled -> ");
-      Serial.print("id: "); Serial.print(PAYLOAD_ID_V1); Serial.print(" ");
-      Serial.print(HORUS_FREQUENCY_1);Serial.print(" MHz "); 
-      Serial.print(HORUS_FREQUENCY_2);Serial.print(" MHz "); 
-      Serial.print(" every "); Serial.print(HORUS_LOOPTIME); Serial.println(" seconds.");
+      toSerialConsole("enabled -> ");
+      toSerialConsole("id: "); toSerialConsole(PAYLOAD_ID_V1); toSerialConsole(" ");
+      toSerialConsole(HORUS_FREQUENCY_1);toSerialConsole(" MHz "); 
+      toSerialConsole(HORUS_FREQUENCY_2);toSerialConsole(" MHz "); 
+      toSerialConsole(" every "); toSerialConsole(HORUS_LOOPTIME); toSerialConsole(" seconds.\n");
    }
    else
    {
-      Serial.println("disabled.");
+      toSerialConsole("disabled.\n");
    }
 
    // HORUS V2
-   Serial.print("HORUS V2 ");   
+   toSerialConsole("HORUS V2 ");   
    if (HORUS_V2_ENABLED)
    {
-      Serial.print("enabled -> ");
-      Serial.print("id: "); Serial.print(PAYLOAD_ID_V2); Serial.print(" ");
-      Serial.print(HORUS_FREQUENCY_1);Serial.print(" MHz "); 
-      Serial.print(HORUS_FREQUENCY_2);Serial.print(" MHz "); 
-      Serial.print(" every "); Serial.print(HORUS_LOOPTIME); Serial.println(" seconds.");
+      toSerialConsole("enabled -> ");
+      toSerialConsole("id: "); toSerialConsole(PAYLOAD_ID_V2); toSerialConsole(" ");
+      toSerialConsole(HORUS_FREQUENCY_1);toSerialConsole(" MHz "); 
+      toSerialConsole(HORUS_FREQUENCY_2);toSerialConsole(" MHz "); 
+      toSerialConsole(" every "); toSerialConsole(HORUS_LOOPTIME); toSerialConsole(" seconds.\n");
    }
    else
    {
-      Serial.println("disabled.");
+      toSerialConsole("disabled.\n");
    }
+
+   // HORUS V3
+   toSerialConsole("HORUS V3 ");   
+   if (HORUS_V3_ENABLED)
+   {
+      toSerialConsole("enabled -> ");
+      toSerialConsole("id: "); toSerialConsole(HORUS_V3_CALLSIGN); toSerialConsole(" ");
+      toSerialConsole(HORUS_FREQUENCY_1);toSerialConsole(" MHz "); 
+      toSerialConsole(HORUS_FREQUENCY_2);toSerialConsole(" MHz "); 
+      toSerialConsole(" every "); toSerialConsole(HORUS_LOOPTIME); toSerialConsole(" seconds.\n");
+   }
+   else
+   {
+      toSerialConsole("disabled.\n");
+   }
+
 
    // APRS
-   Serial.print("APRS (AFSK) ");   
+   toSerialConsole("APRS (AFSK) ");   
    if (APRS_AFSK_ENABLED)
    {
-      Serial.print("enabled -> ");
-      Serial.print(APRS_AFSK_CALLSIGN); Serial.print(" ");
-      Serial.print(APRS_AFSK_FREQUENCY);Serial.print(" MHz "); 
-      Serial.print(" every "); Serial.print(APRS_AFSK_LOOPTIME); Serial.println(" seconds.");
+      toSerialConsole("enabled -> ");
+      toSerialConsole(APRS_AFSK_CALLSIGN); toSerialConsole(" ");
+      toSerialConsole(APRS_AFSK_FREQUENCY);toSerialConsole(" MHz "); 
+      toSerialConsole(" every "); toSerialConsole(APRS_AFSK_LOOPTIME); toSerialConsole(" seconds.\n");
    }
    else
    {
-      Serial.println("disabled.");
+      toSerialConsole("disabled.\n");
    }
 
-   Serial.println();
+   toSerialConsole("\n");
 
    // BME280
-   Serial.print("BME280 sensor ");
+   toSerialConsole("BME280 sensor ");
    #if defined(USE_BME280)
-   Serial.println("enabled.");
+   toSerialConsole("enabled.\n");
    #else
-   Serial.println("disabled.");
+   toSerialConsole("disabled.\n");
    #endif
 
    // Voltage divider
-   Serial.print("Voltage divider ");
+   toSerialConsole("Voltage divider ");
    #if defined(USE_VOLTAGE_INFO)
-   Serial.println("enabled.");
+   toSerialConsole("enabled.\n");
    #else
-   Serial.println("disabled.");
+   toSerialConsole("disabled.\n");
    #endif
 
-
-
-
-   Serial.println("=======================================================================");
-   Serial.println();
-
+   toSerialConsole("=======================================================================\n\n");
 }
 

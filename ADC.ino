@@ -13,8 +13,15 @@ float ReadVCC() {
 #if defined(USE_VOLTAGE_INFO)
   float in_voltage = 0.0;
   float adc_calibrated = 0.0;
-
-  adc_calibrated = analogReadMilliVolts(VOLTAGE_IN_PIN) / 1000.0;
+  int Iterations = 16;
+  // Measure a couple of times 
+  
+  for (int i=1; i<= Iterations;i++ )
+  {
+     adc_calibrated += analogReadMilliVolts(VOLTAGE_IN_PIN);
+  }   
+  adc_calibrated = adc_calibrated / Iterations;
+  adc_calibrated = adc_calibrated / 1000.0;
   in_voltage = adc_calibrated / (float(VOLTAGE_DIVIDER_R2) / (float(VOLTAGE_DIVIDER_R1) + float(VOLTAGE_DIVIDER_R2)));
   in_voltage += float(VOLTAGE_DEVIATION);
   return (in_voltage);
@@ -64,12 +71,12 @@ float ReadHumidity(void) {
 }
 
 //===============================================================================
-// Print the Voltage information for debugging purposes
+// Write the Voltage information for debugging purposes to the Serial Console
 //===============================================================================
 void printVoltageInfo() {
 #if defined(USE_VOLTAGE_INFO)
-  Serial.print(F("    Voltage: "));
-  Serial.print(ReadVCC());
-  Serial.println(" V");
+  toSerialConsole("    Voltage: ");
+  toSerialConsole(ReadVCC());
+  toSerialConsole(" V\n");
 #endif
 }

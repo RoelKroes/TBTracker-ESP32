@@ -44,23 +44,23 @@ void CreateTXLine(const char *PayloadID, unsigned long aCounter, const char *aPr
 
   // Get the temperature
   dtostrf(ReadTemp(), -3, 1, ExternalTemp);
-  Serial.print("Temperature: ");
-  Serial.println(ExternalTemp);
+  toSerialConsole("Temperature: ");
+  toSerialConsole(ExternalTemp); toSerialConsole("\n");
 
   // Get the battery voltage
   dtostrf(ReadVCC(), -4, 2, BattVoltage);
-  Serial.print("Voltage:     ");
-  Serial.println(BattVoltage);
+  toSerialConsole("Voltage:     ");
+  toSerialConsole(BattVoltage); toSerialConsole("\n");
 
   // Get the external air Pressure
   dtostrf(ReadPressure(), -4, 0, ExtPressure);
-  Serial.print("Pressure:    ");
-  Serial.println(ExtPressure);
+  toSerialConsole("Pressure:    ");
+  toSerialConsole(ExtPressure);toSerialConsole("\n");
 
   // Get the relative humidity
   dtostrf(ReadHumidity(), -2, 0, Humidity);
-  Serial.print("Humidity:    ");
-  Serial.println(Humidity);
+  toSerialConsole("Humidity:    ");
+  toSerialConsole(Humidity);toSerialConsole("\n");
 
 
   dtostrf(UGPS.Latitude, 7, 5, LatitudeString);

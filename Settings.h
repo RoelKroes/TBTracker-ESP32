@@ -3,6 +3,14 @@
 //============================================================================
 
 //============================================================================
+// Comment out the line below if you do NOT want Serial console output
+// If ALLOWDEBUG is defined, the program will output data to the serial
+// console for debugging and general info
+// It is recommended you leave this defined when testing your tracker
+//============================================================================
+#define ALLOWDEBUG
+
+//============================================================================
 // PIN NUMBERS for the RF modules and SPI interface
 //  
 // Change if needed
@@ -24,9 +32,9 @@
 // Comment out the one you do not use
 // Currently sx1278, sx1262, sx1268 and LLCC68 are supported
 //============================================================================
-#define USE_SX127X
+// #define USE_SX127X
 // #define USE_LLCC68
-// #define USE_SX1268
+#define USE_SX1268
 // #define USE_SX1262   
 
 //============================================================================
@@ -72,11 +80,11 @@
 //
 // Comment the five lines below out if you do not use a voltage divider
 //============================================================================
-//#define USE_VOLTAGE_INFO          // Uncomment this if you use a voltage divider
-//#define VOLTAGE_IN_PIN 2          // Pin number to which the voltage divider is connected
-//#define VOLTAGE_DIVIDER_R1 10000  // in Ohm
-//#define VOLTAGE_DIVIDER_R2 20000  // in Ohm
-//#define VOLTAGE_DEVIATION 0.00    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
+#define USE_VOLTAGE_INFO          // Uncomment this if you use a voltage divider
+#define VOLTAGE_IN_PIN 2          // Pin number to which the voltage divider is connected
+#define VOLTAGE_DIVIDER_R1 100000  // in Ohm 100K is a good value for voltage between 2 and 6 volts
+#define VOLTAGE_DIVIDER_R2 100000  // in Ohm 100K is a good value for voltage between 2 and 6 volts
+#define VOLTAGE_DEVIATION  0.13    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
 //#define USE_VOLTAGE_IN_APRS       // If you uncomment this, the voltage information will be added to the APRS comment field
 
 //============================================================================
@@ -85,13 +93,14 @@
 // your own code. 
 // Comment the lines below out if you do not use a bme280 sensor
 //============================================================================
-//#define USE_BME280                  // Uncomment this line if you use a BME280 sensor 
+#define USE_BME280 // Uncomment this line if you use a BME280 sensor
+#define SDA_PIN 8  // your SDA pin for the I2C protocol (needed for BME280 sensor)
+#define SCL_PIN 9  // your SCL pin for the I2C protocol (needed for BME280 sensor) 
+
 //#define USE_BME280_TEMP_IN_APRS     // If you uncomment this, the temperature reading from the BME280 will be added to the APRS comment field
 //#define USE_BME280_PRESSURE_IN_APRS // If you uncomment this, the pressure reading from the BME280 will be added to the APRS comment field
 //#define USE_BME280_HUMIDITY_IN_APRS // If you uncomment this, the humidity reading from the BME280 will be added to the APRS comment field
 
-//#define SDA_PIN 8  // your SDA pin for the I2C protocol (needed for BME280 sensor)
-//#define SCL_PIN 9  // your SCL pin for the I2C protocol (needed for BME280 sensor) 
 
 //============================================================================
 // Enable this if you want to calibrate your radio module.
@@ -178,25 +187,33 @@
 // Personalize when you have HORUS_V*_ENABLED set to true and you want HORUS transmissions
 //============================================================================
 //============================================================================
-// Set your Payload IDs
+// Set your Payload IDs for HorusV1 or HorusV2
 // Please refer to: https://github.com/projecthorus/horusdemodlib/blob/master/payload_id_list.txt
 //
 // If you do not have a payload ID, you can use 0 (=4FSKTEST) for V1 and 256 (=4FSKTEST-V2) for V2:
 //#define PAYLOAD_ID_V1  0
 //#define PAYLOAD_ID_V2  256
 //============================================================================
-#define HORUS_V1_ENABLED false     // Set to true if you want HorusBinary V1 transmissions (you can do both V1 and V2 transmissions)
-#define HORUS_V2_ENABLED false     // Set to true if you want HorusBinary V2 transmissions
-#define PAYLOAD_ID_V1 0            // See above. Set to 0 if you do not have apayload ID
-#define PAYLOAD_ID_V2 256          // See above. Set to 256 if you do not have apayload ID
-#define HORUS_FREQUENCY_1 434.714  // Horus can transmit on two frequencies
-#define HORUS_FREQUENCY_2 437.600  // Just set to 0.0 if you only want 1 frequency
-#define HORUS_POWER 13             // In dBm. Valid values +2 to +17 dBm. 10dBm = 10mW, 13dBm=20mW (recommended)
-#define HORUS_BAUD 100             // recommended 50 (8MHz processor) or 100 baud (16MHz, better processor or esp32)
-#define HORUS_SPACING 270          // NOTE: This results in a shift of 244 Hz on the sx127x due to the PLL Resolution of the SX127x which is 61Hz
-#define HORUS_LOOPTIME 40          // Transmit Horus every xx seconds
-#define HORUS_FREQ_OFFSET 0.0      // Frequency deviation in MHz. This will be added to HORUS_FREQUENCY
-
+#define HORUS_V1_ENABLED false       // Set to true if you want HorusBinary V1 transmissions (you can do both V1 and V2 transmissions)
+#define HORUS_V2_ENABLED false       // Set to true if you want HorusBinary V2 transmissions
+#define HORUS_V3_ENABLED true        // Set to true if you want HorusBinary V3 transmissions 
+#define HORUS_V3_CALLSIGN "RK11"      // Horus V3 callsignand  is free to choose but keep it AS SHORT AS POSSIBLE (adding V3 in the call is not necessary)
+#define HORUS_V3_CUSTOM_FIELDS       // if defined will include custom fields into the Horus transmission
+                                     // two fields have been already added as custom fields in this code:
+                                     // 1. gps speed
+                                     // 2. RF chip
+                                     // You can change this in the code or leave it as is
+                                     // Note that including custom fields will SIGNIFICANTLY increase transmission length!
+                                     // Just comment the line out if you do not want custom fields
+#define PAYLOAD_ID_V1 0              // For Horus V1. See above. Set to 0 if you do not have apayload ID
+#define PAYLOAD_ID_V2 256            // For Horus V2. See above. Set to 256 if you do not have apayload ID
+#define HORUS_FREQUENCY_1 437.600    // Horus can transmit on two frequencies (434.714, 437.600 is kind of standard in Europe )
+#define HORUS_FREQUENCY_2 0.0        // Just set to 0.0 if you only want 1 frequency
+#define HORUS_POWER 13               // In dBm. Valid values +2 to +17 dBm. 10dBm = 10mW, 13dBm=20mW (recommended)
+#define HORUS_BAUD 100               // recommended 50 (8MHz processor) or 100 baud (16MHz, better processor or esp32)
+#define HORUS_SPACING 270            // NOTE: This results in a shift of 244 Hz on the sx127x due to the PLL Resolution of the SX127x which is 61Hz
+#define HORUS_LOOPTIME 20            // Transmit Horus every xx seconds
+#define HORUS_FREQ_OFFSET 0.0        // Frequency deviation in MHz. This will be added to HORUS_FREQUENCY
 
 //============================================================================
 // "Standard" AFSK APRS SETTINGS

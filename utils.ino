@@ -4,6 +4,36 @@
 
 
 //============================================================================
+// Sends output to the serial console with 1ms delay between characters
+//============================================================================
+template <typename T>
+void toSerialConsole(T data) 
+{  
+#if defined(ALLOWDEBUG)	
+  // this will work for int, float, double, char, etc.
+  String Str = String(data);
+  
+  // Send the String one char at the time
+  for (unsigned int i = 0; i < Str.length(); i++) {
+    Serial.write(Str[i]);
+    delay(1); // 1ms delay for esp32s2 and c3 mcu with native USB comms.
+  }
+#endif	
+}
+
+// version for floats where you can specify the number of decimals
+void toSerialConsole(double data, int decimals) 
+{
+#if defined(ALLOWDEBUG)	
+  String Str = String(data, decimals);
+  for (unsigned int i = 0; i < Str.length(); i++) {
+    Serial.write(Str[i]);
+    delay(1);
+  }
+#endif	
+}
+
+//============================================================================
 // Calculate CRC to be used in the TX line
 //============================================================================
 uint16_t _crc_xmodem_update(uint16_t crc, uint8_t data) {
@@ -65,8 +95,8 @@ int8_t Decto2compl(float aNumber) {
 	if (dec >= -128 && dec <= 127) {
 		if (dec >= 0)  // for positive number twocomplement is the same
 		{
-			Serial.print("Temperatuur in 2-comp positief: ");
-			Serial.println((int8_t)dec);
+			toSerialConsole("Temperatuur in 2-comp positief: ");
+			toSerialConsole((int8_t)dec);toSerialConsole("\n");
 			return dec;
 		} else {
 			// take abs value
@@ -76,8 +106,8 @@ int8_t Decto2compl(float aNumber) {
 			// Add 1
 			int8_t twoComplement = oneComplement + 1;
 			// return the value
-			Serial.print("Temperatuur in 2-comp negatief: ");
-			Serial.println((int8_t)twoComplement);
+			toSerialConsole("Temperatuur in 2-comp negatief: ");
+			toSerialConsole((int8_t)twoComplement);toSerialConsole("\n");
 			return (int8_t)twoComplement;
 		}
 	} else {
@@ -93,10 +123,11 @@ int8_t Decto2compl(float aNumber) {
 void Radiolib_assert(int16_t lState) {
 	if (lState == RADIOLIB_ERR_NONE)  // Change this to (state == ERR_NONE) if you use an older radiolib library
 	{
-		Serial.println(F("done"));
-	} else {
-		Serial.print(F("failed, code "));
-		Serial.println(lState);
+		toSerialConsole("done\n");
+	} else 
+	{
+		toSerialConsole("failed, code ");
+		toSerialConsole(lState); toSerialConsole("\n");
 		delay(60000);
 		ESP.restart();
 	}

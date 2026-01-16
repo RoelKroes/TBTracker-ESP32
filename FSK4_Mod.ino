@@ -45,7 +45,7 @@ int16_t fsk4_setup(PhysicalLayer* phy, float base, uint32_t shift, uint16_t rate
   // calculate 24-bit frequency
   fsk4_base = (base * 1000000.0) / phy->freqStep;
 
-  Serial.println(fsk4_base);
+  toSerialConsole("[FSK4] base: "); toSerialConsole(fsk4_base);toSerialConsole("\n");
 
   // configure for direct mode
   return(phy->startDirect());
@@ -85,7 +85,7 @@ int16_t fsk4_setup(PhysicalLayer* phy, float base, uint32_t shift, uint16_t rate
   // calculate 24-bit frequency
   fsk4_base = (base * 1000000.0) / phy->getFreqStep();
 
-  Serial.println(fsk4_base);
+  toSerialConsole("[FSK4] base: ");toSerialConsole(fsk4_base);toSerialConsole("\n");
 
   // configure for direct mode
   return(phy->startDirect());

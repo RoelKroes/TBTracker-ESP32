@@ -10,9 +10,9 @@ void ProcessRXPacket() {
   int16_t state;
 
   // EXAMPLE OF RX ACTION
-  Serial.println("============================================");
-  Serial.println("PACKET RECEIVED!");
-  Serial.println("============================================");
+  toSerialConsole("============================================\n");
+  toSerialConsole("PACKET RECEIVED!\n");
+  toSerialConsole("============================================\n");
 
   // Grab the data from the radio module
   switch (LORA_MODE) {
@@ -26,21 +26,20 @@ void ProcessRXPacket() {
 
   // Packet was successfully received
   if (state == RADIOLIB_ERR_NONE) {
-    Serial.print("Packet length: ");
-    Serial.println(radio.getPacketLength());
-    Serial.print("          RSSI: ");
-    Serial.println(radio.getRSSI());
-    Serial.print("           SNR: ");
-    Serial.println(radio.getSNR());
-    Serial.print("First 10 chars: ");
+    toSerialConsole("Packet length: ");
+    toSerialConsole(radio.getPacketLength());toSerialConsole("\n");
+    toSerialConsole("          RSSI: ");
+    toSerialConsole(radio.getRSSI());toSerialConsole("\n");
+    toSerialConsole("           SNR: ");
+    toSerialConsole(radio.getSNR());toSerialConsole("\n");
+    toSerialConsole("First 10 chars: ");
     // Print the first 10 hex chars of the packet
-    Serial.print("[RADIO] first 10 hex chars:\t");
+    toSerialConsole("[RADIO] first 10 hex chars:\t");
     for (int i = 0; i < 10; i++) {
-      Serial.print(buf[i], HEX);
-      Serial.print(" ");
+      toSerialConsole(buf[i], HEX);
+      toSerialConsole(" ");
     }
-    Serial.println();
-    Serial.println("============================================");
+    toSerialConsole("\n============================================\n");
   }
 
   // Reset the received flag

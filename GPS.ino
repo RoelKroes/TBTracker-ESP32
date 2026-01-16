@@ -16,17 +16,18 @@ void CheckGPS() {
 //============================================================================
 static void GPSCommTest(unsigned long ms)
 {
+#if defined(ALLOWDEBUG)
   unsigned long start = millis();
-  Serial.println("---START GPS COMMUNICATION CHECK---");
-  Serial.println("-----------------------------------");
+  toSerialConsole("---START GPS COMMUNICATION CHECK---\n");
+  toSerialConsole("-----------------------------------\n");
   do 
   {
     if (SerialGPS.available())
        Serial.write(SerialGPS.read());
   } while (millis() - start < ms);
-  Serial.println("-----------------------------------");
-  Serial.println("----END GPS COMMUNICATION CHECK----");
-  Serial.println();
+  toSerialConsole("-----------------------------------\n");
+  toSerialConsole("----END GPS COMMUNICATION CHECK----\n\n");
+#endif
 }
 
 //============================================================================
@@ -85,6 +86,12 @@ static void processGPSData() {
 
   if (UGPS.Altitude < 0)
     UGPS.Altitude = 0;
+
+  // Speed
+  if (gps.speed.isValid())
+     UGPS.Speed = gps.speed.kmph();
+  else
+     UGPS.Speed = 0;
 }
 
 //============================================================================
@@ -92,32 +99,32 @@ static void processGPSData() {
 //============================================================================
 void printGPSData() {
   String str;
-  Serial.print(F("       Time: "));
-  Serial.print(UGPS.Hours);
-  Serial.print(":");
-  Serial.print(UGPS.Minutes);
-  Serial.print(":");
-  Serial.println(UGPS.Seconds);
-  Serial.print(F("   Latitude: "));
-  Serial.print(UGPS.Latitude, 6);
+  toSerialConsole("       Time: ");
+  toSerialConsole(UGPS.Hours);
+  toSerialConsole(":");
+  toSerialConsole(UGPS.Minutes);
+  toSerialConsole(":");
+  toSerialConsole(UGPS.Seconds); toSerialConsole("\n");
+  toSerialConsole("   Latitude: ");
+  toSerialConsole(UGPS.Latitude, 6);
   str = getAPRSlat(UGPS.Latitude);
-  Serial.print("  (");
-  Serial.print(str);
-  Serial.println(")");
-  Serial.print(F("  Longitude: "));
-  Serial.print(UGPS.Longitude, 6);
+  toSerialConsole("  (");
+  toSerialConsole(str);
+  toSerialConsole(")\n");
+  toSerialConsole("  Longitude: ");
+  toSerialConsole(UGPS.Longitude, 6);
   str = getAPRSlon(UGPS.Longitude);
-  Serial.print("  (");
-  Serial.print(str);
-  Serial.println(")");
-  Serial.print(F("   Altitude: "));
-  Serial.print(UGPS.Altitude);
+  toSerialConsole("  (");
+  toSerialConsole(str);
+  toSerialConsole(")\n");
+  toSerialConsole("   Altitude: ");
+  toSerialConsole(UGPS.Altitude);
   str = getAPRSAlt(UGPS.Altitude);
-  Serial.print("  (");
-  Serial.print(str);
-  Serial.println(")");
-  Serial.print(F(" Satellites: "));
-  Serial.println(UGPS.Satellites);
+  toSerialConsole("  (");
+  toSerialConsole(str);
+  toSerialConsole(")\n");
+  toSerialConsole(" Satellites: ");
+  toSerialConsole(UGPS.Satellites); toSerialConsole("\n");
 }
 
 

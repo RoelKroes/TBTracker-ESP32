@@ -15,18 +15,17 @@ Adafruit_BME280 bme;
 //============================================================================
 void setup_bme280() {
   unsigned status;
-  Serial.println("Setting up bme280.");
+  toSerialConsole("Setting up bme280.\n");
   Wire.begin(SDA_PIN, SCL_PIN);
   status = bme.begin(0x76, &Wire);
   if (!status) {
-    Serial.println("Could not find a valid BME280 sensor, check wiring, address, sensor ID!");
-    Serial.print("SensorID was: 0x");
-    Serial.println(bme.sensorID(), 16);
-    Serial.print("        ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n");
-    Serial.print("   ID of 0x56-0x58 represents a BMP 280,\n");
-    Serial.print("        ID of 0x60 represents a BME 280.\n");
-    Serial.print("        ID of 0x61 represents a BME 680.\n");
-    Serial.println();
+    toSerialConsole("Could not find a valid BME280 sensor, check wiring, address, sensor ID!\n");
+    toSerialConsole("SensorID was: 0x");
+    toSerialConsole(bme.sensorID(), 16); toSerialConsole("\n");
+    toSerialConsole("        ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n");
+    toSerialConsole("   ID of 0x56-0x58 represents a BMP 280,\n");
+    toSerialConsole("        ID of 0x60 represents a BME 280.\n");
+    toSerialConsole("        ID of 0x61 represents a BME 680.\n\n");
   }
 }
 
@@ -54,18 +53,18 @@ float bme280_humidity() {
 #endif
 
 //============================================================================
-// Print the BME280 values for debugging purposes
+// Write the BME280 values for debugging purposes to the serial console
 //============================================================================
 void printbme280Data() {
 #if defined(USE_BME280)
-  Serial.print(F("Temperature: "));
-  Serial.print(bme280_temperature());
-  Serial.println(" °C");
-  Serial.print(F("   Pressure: "));
-  Serial.print(bme280_pressure());
-  Serial.println(" hPa");
-  Serial.print(F("   Humidity: "));
-  Serial.print(bme280_humidity());
-  Serial.println(" %");
+  toSerialConsole("Temperature: ");
+  toSerialConsole(bme280_temperature());
+  toSerialConsole(" °C\n");
+  toSerialConsole("   Pressure: ");
+  toSerialConsole(bme280_pressure());
+  toSerialConsole(" hPa\n");
+  toSerialConsole("   Humidity: ");
+  toSerialConsole(bme280_humidity());
+  toSerialConsole(" %\n");
 #endif
 }

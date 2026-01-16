@@ -56,7 +56,7 @@ void SetupRTTY() {
   // First setup FSK
   SetupFSK();
   // RTTY
-  Serial.print(F("RTTY init.."));
+  toSerialConsole("RTTY init..");
   // Setup for RTTY
   Radiolib_assert(
     rtty.begin(RTTYSettings.Frequency,
@@ -77,13 +77,13 @@ void SendAPRS() {
   // create APRS client instance using the AX.25 client
   APRSClient aprs(&ax25);
 
-  Serial.println();
-  Serial.print("Setting up radio for APRS...");
+  
+  toSerialConsole("\nSetting up radio for APRS...");
   Radiolib_assert(radio.beginFSK(APRS_AFSK_FREQUENCY + APRS_AFSK_FREQ_OFFSET));
   Radiolib_assert(radio.setOutputPower(APRS_AFSK_POWER));
   // If we get this far, the radio is initialized
   // initialize AX.25 client
-  Serial.print(F("[AX.25] Initializing ... "));
+  toSerialConsole("[AX.25] Initializing ... ");
   // Source call, ssid, preamble length
   Radiolib_assert(ax25.begin(APRS_AFSK_CALLSIGN, APRS_AFSK_SSID, APRS_AFSK_PREAMBLE));
 
@@ -91,13 +91,13 @@ void SendAPRS() {
   // Radiolib_assert(ax25.setCorrection(1, 2));
 
   // initialize APRS client
-  Serial.print(F("[APRS] Initializing ... "));
+  toSerialConsole("[APRS] Initializing ... ");
   // symbol:'O' (Balloon)
   Radiolib_assert(aprs.begin('O'));
 
   // If we get here we are ready send an APRS packet using AFSK/AX.25
   String lStr;
-  Serial.println(F("[APRS] Sending location report"));
+  toSerialConsole("[APRS] Sending location report\n");
   // The DESTID that TBTracker was assigned. Do not change.
   char destination[] = "APETBT";
   // Get the current latitude
@@ -125,8 +125,7 @@ void SendAPRS() {
 // Set the radio for Horus 4FSK
 //============================================================================
 void SetupHorus(float lFreq) {
-  Serial.println();
-  Serial.println("Setting up radio for Horus...");
+  toSerialConsole("\nSetting up radio for Horus...\n");
 // Initialize the radio in FSK mode
 #if defined(USE_SX1262)
   Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
@@ -145,7 +144,7 @@ void SetupHorus(float lFreq) {
 #endif
 
 
-  Serial.print(F("[FSK4] Initializing ... "));
+  toSerialConsole("[FSK4] Initializing ... ");
   // initialize FSK4 transmitter
   // NOTE: FSK4 frequency shift will be rounded
   //       to the nearest multiple of frequency step size.
@@ -168,8 +167,7 @@ void SetupHorus(float lFreq) {
 //============================================================================
 void SetupFSK() {
 
-  Serial.println();
-  Serial.print("Setting up radio for RTTY...");
+  toSerialConsole("\nSetting up radio for RTTY...");
 // Initialize the radio in FSK mode
 #if defined(USE_SX1262)
   Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
@@ -193,7 +191,7 @@ void SetupFSK() {
 //============================================================================
 void SetupLoRa(int aMode) {
   // Initialize the SX1278
-  Serial.print(F("[LoRA] Initializing ... "));
+  toSerialConsole("[LoRA] Initializing ... ");
 
   ResetRadio();
 
@@ -368,9 +366,9 @@ void sendRTTY(String TxLine) {
   delay(RTTY_IDLE_TIME);
 
   // Send the string
-  Serial.print(F("Send RTTY: "));
-  Serial.println(TxLine);
-  rtty.println(TxLine);
+  toSerialConsole("Send RTTY: ");
+  toSerialConsole(TxLine);toSerialConsole("\n");
+  toSerialConsole(TxLine);toSerialConsole("\n");
   Radiolib_assert(rtty.standby());
 }
 
@@ -391,7 +389,7 @@ void ResetRadio() {
 //============================================================================
 void sendLoRa(String TxLine, int aMode) {
   SetupLoRa(aMode);
-  Serial.println(TxLine);
+  toSerialConsole(TxLine);toSerialConsole("\n");
 
   switch (LORA_MODE) {
     case 1:
@@ -418,50 +416,50 @@ void sendHorusV1() {
   int coded_len;
 
   // Start Horus Binary V1
-  Serial.println(F("Generating Horus Binary v1 Packet"));
+  toSerialConsole("Generating Horus Binary v1 Packet");
 
   // Generate packet for V1
   pkt_len = build_horus_binary_packet_v1(rawbuffer);
   PrintHex(rawbuffer, pkt_len, debugbuffer);
-  Serial.print(F("Uncoded Length (bytes): "));
-  Serial.println(pkt_len);
-  Serial.print(F("Uncoded: "));
-  Serial.println(debugbuffer);
+  toSerialConsole("Uncoded Length (bytes): ");
+  toSerialConsole(pkt_len);toSerialConsole("\n");
+  toSerialConsole("Uncoded: ");
+  toSerialConsole(debugbuffer);toSerialConsole("\n");
 
   // Apply Encoding
   coded_len = horus_l2_encode_tx_packet((unsigned char*)codedbuffer, (unsigned char*)rawbuffer, pkt_len);
   PrintHex(codedbuffer, coded_len, debugbuffer);
-  Serial.print(F("Encoded Length (bytes): "));
-  Serial.println(coded_len);
-  Serial.print(F("Coded: "));
-  Serial.println(debugbuffer);
+  toSerialConsole("Encoded Length (bytes): ");
+  toSerialConsole(coded_len); toSerialConsole("\n");
+  toSerialConsole("Coded: ");
+  toSerialConsole(debugbuffer);toSerialConsole("\n");
 
   // Setup the radio for Horus communication of frequency 1
   if (HORUS_FREQUENCY_1 != 0.0) {
     SetupHorus(HORUS_FREQUENCY_1);
     // Transmit!
-    Serial.print(F("Transmitting Horus Binary v1 Packet on: "));
-    Serial.print(HORUS_FREQUENCY_1);
-    Serial.println("MHz");
+    toSerialConsole("Transmitting Horus Binary v1 Packet on: ");
+    toSerialConsole(HORUS_FREQUENCY_1);
+    toSerialConsole("MHz\n");
     fsk4_idle(&radio);
     delay(100);
     fsk4_preamble(&radio, 8);
     fsk4_write(&radio, codedbuffer, coded_len);
-    Serial.println();
+    toSerialConsole("\n");
   }
 
   // Setup the radio for Horus communication of frequency 2
   if (HORUS_FREQUENCY_2 != 0.0) {
     SetupHorus(HORUS_FREQUENCY_2);
     // Transmit!
-    Serial.print(F("Transmitting Horus Binary v1 Packet on: "));
-    Serial.print(HORUS_FREQUENCY_2);
-    Serial.println("MHz");
+    toSerialConsole(F("Transmitting Horus Binary v1 Packet on: "));
+    toSerialConsole(HORUS_FREQUENCY_2);
+    toSerialConsole("MHz\n");
     fsk4_idle(&radio);
     delay(100);
     fsk4_preamble(&radio, 8);
     fsk4_write(&radio, codedbuffer, coded_len);
-    Serial.println();
+    toSerialConsole("\n");
   }
 }
 
@@ -471,54 +469,110 @@ void sendHorusV1() {
 void sendHorusV2() {
   int pkt_len;
   int coded_len;
-  // Start Horus Binary V1
-  Serial.println(F("Generating Horus Binary v2 Packet"));
+  // Start Horus Binary V2
+  toSerialConsole("Generating Horus Binary v2 Packet");
 
-  // Generate packet for V1
+  // Generate packet for V2
   pkt_len = build_horus_binary_packet_v2(rawbuffer);
   PrintHex(rawbuffer, pkt_len, debugbuffer);
-  Serial.print(F("Uncoded Length (bytes): "));
-  Serial.println(pkt_len);
-  Serial.print(F("Uncoded: "));
-  Serial.println(debugbuffer);
+  toSerialConsole("Uncoded Length (bytes): ");
+  toSerialConsole(pkt_len);toSerialConsole("\n");
+  toSerialConsole("Uncoded: ");
+  toSerialConsole(debugbuffer);toSerialConsole("\n");
 
   // Apply Encoding
   coded_len = horus_l2_encode_tx_packet((unsigned char*)codedbuffer, (unsigned char*)rawbuffer, pkt_len);
   PrintHex(codedbuffer, coded_len, debugbuffer);
-  Serial.print(F("Encoded Length (bytes): "));
-  Serial.println(coded_len);
-  Serial.print("Coded: ");
-  Serial.println(debugbuffer);
+  toSerialConsole("Encoded Length (bytes): ");
+  toSerialConsole(coded_len); toSerialConsole("\n");
+  toSerialConsole("Coded: ");
+  toSerialConsole(debugbuffer); toSerialConsole("\n");
 
 
   // Setup the radio for Horus communication of frequency 1
   if (HORUS_FREQUENCY_1 != 0.0) {
     SetupHorus(HORUS_FREQUENCY_1);
     // Transmit!
-    Serial.print(F("Transmitting Horus Binary v2 Packet on: "));
-    Serial.print(HORUS_FREQUENCY_1);
-    Serial.println("MHz");
+    toSerialConsole("Transmitting Horus Binary v2 Packet on: ");
+    toSerialConsole(HORUS_FREQUENCY_1);
+    toSerialConsole("MHz\n");
     fsk4_idle(&radio);
     delay(100);
     fsk4_preamble(&radio, 8);
     fsk4_write(&radio, codedbuffer, coded_len);
-    Serial.println();
+    toSerialConsole("\n");
   }
 
   // Setup the radio for Horus communication of frequency 2
   if (HORUS_FREQUENCY_2 != 0.0) {
     SetupHorus(HORUS_FREQUENCY_2);
     // Transmit!
-    Serial.print(F("Transmitting Horus Binary v2 Packet on: "));
-    Serial.print(HORUS_FREQUENCY_2);
-    Serial.println("MHz");
+    toSerialConsole("Transmitting Horus Binary v2 Packet on: ");
+    toSerialConsole(HORUS_FREQUENCY_2);
+    toSerialConsole("MHz\n");
     fsk4_idle(&radio);
     delay(100);
     fsk4_preamble(&radio, 8);
     fsk4_write(&radio, codedbuffer, coded_len);
-    Serial.println();
+    toSerialConsole("\n");
   }
 }
+
+//============================================================================
+// Send a Horus V3 packet over the radio
+//============================================================================
+void sendHorusV3() {
+  int pkt_len;
+  int coded_len;
+  // Start Horus Binary V2
+  toSerialConsole("Generating Horus Binary v3 Packet");
+
+  // Generate packet for V3
+  pkt_len = build_horus_binary_packet_v3(rawbuffer);
+  PrintHex(rawbuffer, pkt_len, debugbuffer);
+  toSerialConsole("Uncoded Length (bytes): ");
+  toSerialConsole(pkt_len);toSerialConsole("\n");
+  toSerialConsole("Uncoded: ");
+  toSerialConsole(debugbuffer);toSerialConsole("\n");
+
+  // Apply Encoding
+  coded_len = horus_l2_encode_tx_packet((unsigned char*)codedbuffer, (unsigned char*)rawbuffer, pkt_len);
+  PrintHex(codedbuffer, coded_len, debugbuffer);
+  toSerialConsole("Encoded Length (bytes): ");
+  toSerialConsole(coded_len); toSerialConsole("\n");
+  toSerialConsole("Coded: ");
+  toSerialConsole(debugbuffer);toSerialConsole("\n");
+
+  // Setup the radio for Horus communication of frequency 1
+  if (HORUS_FREQUENCY_1 != 0.0) {
+    SetupHorus(HORUS_FREQUENCY_1);
+    // Transmit!
+    toSerialConsole("Transmitting Horus Binary v3 Packet on: ");
+    toSerialConsole(HORUS_FREQUENCY_1);
+    toSerialConsole("MHz\n");
+    fsk4_idle(&radio);
+    delay(100);
+    fsk4_preamble(&radio, 8);
+    fsk4_write(&radio, codedbuffer, coded_len);
+    toSerialConsole("\n");
+  }
+
+  // Setup the radio for Horus communication of frequency 2
+  if (HORUS_FREQUENCY_2 != 0.0) {
+    SetupHorus(HORUS_FREQUENCY_2);
+    // Transmit!
+    toSerialConsole("Transmitting Horus Binary v3 Packet on: ");
+    toSerialConsole(HORUS_FREQUENCY_2);
+    toSerialConsole("MHz\n");
+    fsk4_idle(&radio);
+    delay(100);
+    fsk4_preamble(&radio, 8);
+    fsk4_write(&radio, codedbuffer, coded_len);
+    toSerialConsole("\n");
+  }
+  
+}
+
 
 //============================================================================
 // Send a LoRa APRS packet over the radio
@@ -574,17 +628,17 @@ void sendLoRaAprs() {
 
 
   if (LORA_APRS_WORLD_ENABLED) {
-    Serial.println("Sending LoRa APRS packet on the world frequency");
+    toSerialConsole("Sending LoRa APRS packet on the world frequency\n");
     sendLoRa(aprs_packet, LORA_APRS_MODE);
   }
 
   if (LORA_APRS_PL_ENABLED && inPoland()) {
-    Serial.println("Sending LoRa APRS packet on the Poland frequency");
+    toSerialConsole("Sending LoRa APRS packet on the Poland frequency\n");
     sendLoRa(aprs_packet, LORA_APRS_MODE_PL);
   }
 
   if (LORA_APRS_UK_ENABLED && inUK()) {
-    Serial.println("Sending LoRa APRS packet on the UK frequency");
+    toSerialConsole("Sending LoRa APRS packet on the UK frequency\n");
     sendLoRa(aprs_packet, LORA_APRS_MODE_UK);
   }
 }
@@ -595,14 +649,14 @@ void sendLoRaAprs() {
 // You can enable this in the settings.h file
 //============================================================================
 void FreqCalibration(float Frequency) {
-  Serial.print("Starting calibration...");
+  toSerialConsole("Starting calibration...");
 
   // create FSK4 client instance using the FSK module
   FSK4Client fsk4(&radio);
   Radiolib_assert(radio.beginFSK());
 
   // Starting fsk4
-  Serial.print("Starting Radio...");
+  toSerialConsole("Starting Radio...");
   Radiolib_assert(fsk4.begin(Frequency, 270, 100));
 
   // Send a carrier for 10 seconds, wait 5 seconds, loop.
@@ -632,9 +686,9 @@ void StartReceiveLoRaPacket() {
     Radiolib_assert(radio.startReceive());
   }
   // If we get here, we are listening on the frequency
-  Serial.print(F("[LoRa] Waiting for packets on: "));
-  Serial.print(LoRaSettings.Frequency, 3);
-  Serial.println(F(" MHz"));
-  Serial.println(F("----------------------------"));
+  toSerialConsole("[LoRa] Waiting for packets on: ");
+  toSerialConsole(LoRaSettings.Frequency, 3);
+  toSerialConsole(" MHz\n");
+  toSerialConsole("----------------------------\n");
 }
 
