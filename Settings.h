@@ -32,9 +32,9 @@
 // Comment out the one you do not use
 // Currently sx1278, sx1262, sx1268 and LLCC68 are supported
 //============================================================================
-// #define USE_SX127X
+#define USE_SX127X
 // #define USE_LLCC68
-#define USE_SX1268
+// #define USE_SX1268
 // #define USE_SX1262   
 
 //============================================================================
@@ -80,12 +80,12 @@
 //
 // Comment the five lines below out if you do not use a voltage divider
 //============================================================================
-#define USE_VOLTAGE_INFO          // Uncomment this if you use a voltage divider
-#define VOLTAGE_IN_PIN 2          // Pin number to which the voltage divider is connected
-#define VOLTAGE_DIVIDER_R1 100000  // in Ohm 100K is a good value for voltage between 2 and 6 volts
-#define VOLTAGE_DIVIDER_R2 100000  // in Ohm 100K is a good value for voltage between 2 and 6 volts
-#define VOLTAGE_DEVIATION  0.13    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
-//#define USE_VOLTAGE_IN_APRS       // If you uncomment this, the voltage information will be added to the APRS comment field
+//#define USE_VOLTAGE_INFO           // Uncomment this if you use a voltage divider
+//#define VOLTAGE_IN_PIN 2           // Pin number to which the voltage divider is connected
+//#define VOLTAGE_DIVIDER_R1 100000  // in Ohm 100K is a good value for voltage between 2 and 6 volts
+//#define VOLTAGE_DIVIDER_R2 100000  // in Ohm 100K is a good value for voltage between 2 and 6 volts
+//#define VOLTAGE_DEVIATION  0.00    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
+//#define USE_VOLTAGE_IN_APRS      // If you uncomment this, the voltage information will be added to the APRS comment field
 
 //============================================================================
 // Enable this if you have a BME280 sensor
@@ -93,9 +93,9 @@
 // your own code. 
 // Comment the lines below out if you do not use a bme280 sensor
 //============================================================================
-#define USE_BME280 // Uncomment this line if you use a BME280 sensor
-#define SDA_PIN 8  // your SDA pin for the I2C protocol (needed for BME280 sensor)
-#define SCL_PIN 9  // your SCL pin for the I2C protocol (needed for BME280 sensor) 
+//#define USE_BME280 // Uncomment this line if you use a BME280 sensor
+//#define SDA_PIN 8  // your SDA pin for the I2C protocol (needed for BME280 sensor)
+//#define SCL_PIN 9  // your SCL pin for the I2C protocol (needed for BME280 sensor) 
 
 //#define USE_BME280_TEMP_IN_APRS     // If you uncomment this, the temperature reading from the BME280 will be added to the APRS comment field
 //#define USE_BME280_PRESSURE_IN_APRS // If you uncomment this, the pressure reading from the BME280 will be added to the APRS comment field
@@ -196,19 +196,19 @@
 //============================================================================
 #define HORUS_V1_ENABLED false       // Set to true if you want HorusBinary V1 transmissions (you can do both V1 and V2 transmissions)
 #define HORUS_V2_ENABLED false       // Set to true if you want HorusBinary V2 transmissions
-#define HORUS_V3_ENABLED true        // Set to true if you want HorusBinary V3 transmissions 
-#define HORUS_V3_CALLSIGN "RK11"      // Horus V3 callsignand  is free to choose but keep it AS SHORT AS POSSIBLE (adding V3 in the call is not necessary)
+#define HORUS_V3_ENABLED false       // Set to true if you want HorusBinary V3 transmissions 
+#define HORUS_V3_CALLSIGN "MYCALL"   // Horus V3 callsign. you are free to choose but keep it AS SHORT AS POSSIBLE (adding V3 in the call is not necessary)
 #define HORUS_V3_CUSTOM_FIELDS       // if defined will include custom fields into the Horus transmission
                                      // two fields have been already added as custom fields in this code:
-                                     // 1. gps speed
-                                     // 2. RF chip
+                                     // 1. gps speed (in km/hr) 
+                                     // 2. RF chip   (sx1278, llcc68, sx1262, sx1268)
                                      // You can change this in the code or leave it as is
                                      // Note that including custom fields will SIGNIFICANTLY increase transmission length!
                                      // Just comment the line out if you do not want custom fields
 #define PAYLOAD_ID_V1 0              // For Horus V1. See above. Set to 0 if you do not have apayload ID
 #define PAYLOAD_ID_V2 256            // For Horus V2. See above. Set to 256 if you do not have apayload ID
 #define HORUS_FREQUENCY_1 437.600    // Horus can transmit on two frequencies (434.714, 437.600 is kind of standard in Europe )
-#define HORUS_FREQUENCY_2 0.0        // Just set to 0.0 if you only want 1 frequency
+#define HORUS_FREQUENCY_2 434.714    // Just set to 0.0 if you only want 1 frequency
 #define HORUS_POWER 13               // In dBm. Valid values +2 to +17 dBm. 10dBm = 10mW, 13dBm=20mW (recommended)
 #define HORUS_BAUD 100               // recommended 50 (8MHz processor) or 100 baud (16MHz, better processor or esp32)
 #define HORUS_SPACING 270            // NOTE: This results in a shift of 244 Hz on the sx127x due to the PLL Resolution of the SX127x which is 61Hz
@@ -247,7 +247,7 @@ static const uint32_t GPSBaud = 9600;  // modern devices are 9600 baud. some are
 //   
 // Change if needed
 //============================================================================
-#define SENTENCE_LENGTH 100  // Maximum length of telemetry line to send
+#define SENTENCE_LENGTH 100  // Maximum length of telemetry line to send (not for APRS and Horus)
 
 //============================================================================
 // SONDEHUB EXTRA FIELDS SETTINGS for LoRa and RTTY transmissions (not used for Horus)
