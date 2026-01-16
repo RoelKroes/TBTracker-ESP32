@@ -1,5 +1,5 @@
 # TBTracker-ESP32
-A Plug and Play High Altitude Balloon tracker for ESP32. Supports LoRa, LoRa-APRS, RTTY, Horus V1 4FSK, Horus V2 4FSK, Horus V34FSK.
+A Plug and Play High Altitude Balloon tracker for ESP32. Supports LoRa, LoRa-APRS, RTTY, Horus V1 4FSK, Horus V2 4FSK, Horus V3 4FSK.
 
 TBTracker-ESP32 is an Arduino sketch for a tracker for high altitude weather or scientific balloons. 
 It supports sending telemetry data in mulitple formats:
@@ -23,7 +23,6 @@ You will need to install two extra Arduino library from the librairy manager:
 - TinyGPS++
 
 The program also supports the BME280 environment sensor. If you enable that code, you will need the Adafruit BME280 library
-
 
 # Hardware
 The minimal hardware configuration you need is:
