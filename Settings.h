@@ -30,12 +30,23 @@
 //============================================================================
 // Define which radiochip you use
 // Comment out the one you do not use
-// Currently sx1278, sx1262, sx1268 and LLCC68 are supported
+// Currently sx1278, sx1262, sx1268, LLCC68 and the RF69 are supported
+//
+//  sx1278: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX 
+//  sx1276: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX 
+//  sx1262: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX (recommended RF module for all modes)
+//  sx1268: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX (recommended RF module for all modes)
+//  LLCC68: RTTY, Horus, LoRa, APRS (not recommended for LoRa, only bw 125, 250 and 500kHz are upported)
+//    RF69: RTTY, Horus, APRS
+//
+//  For Horus all modules have a tone spacing of 270 except for the sx127x and
+//  RF69 modules which have a tone spacing of 244. 
 //============================================================================
 #define USE_SX127X
 // #define USE_LLCC68
 // #define USE_SX1268
-// #define USE_SX1262   
+// #define USE_SX1262  
+// #define USE_RF69 
 
 //============================================================================
 // Define the use of a TCXO
@@ -52,14 +63,17 @@
 // Not all pin numbers are used for the different RF modules
 // For the sx127x series: PIN_NSS, PIN_DIO0, PIN_RESET, PIN_DIO1 and PIN_DIO2 is you use AFSK APRS
 // For the SX126x and LLCC68 series: PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY and PIN_DIO2 if you use AFSKL APRS
+// For the RF69: PIN_NSS, PIN_DIO0, PIN_RESET
 //============================================================================
 #define PIN_NSS 34
 #define PIN_DIO0 38
 #define PIN_BUSY 4     
 #define PIN_RESET 33
 #define PIN_DIO1 3
-#define PIN_DIO2 4  // Only used for AFSK / APRS
 
+// PIN_DI02 is only used for AFSK-APRS
+// SX127x/RF69/SX126x/LLCC68 all can do AFSK-APRS when DIO2 is connected to the esp32
+#define PIN_DIO2 4  
 
 //============================================================================
 // Enable these lines if you want to use a voltage divider to read voltage information
@@ -73,22 +87,23 @@
 //      R1
 //      |
 //      +---- Voltage_in_pin (Pin x from ESP32)
-//      |
+//      |   
 //      R2
 //      |
 //      GND
 //
 // Comment the five lines below out if you do not use a voltage divider
 //============================================================================
-//#define USE_VOLTAGE_INFO           // Uncomment this if you use a voltage divider
-//#define VOLTAGE_IN_PIN 2           // Pin number to which the voltage divider is connected
-//#define VOLTAGE_DIVIDER_R1 100000  // in Ohm 100K is a good value for voltage between 2 and 6 volts
-//#define VOLTAGE_DIVIDER_R2 100000  // in Ohm 100K is a good value for voltage between 2 and 6 volts
-//#define VOLTAGE_DEVIATION  0.00    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
-//#define USE_VOLTAGE_IN_APRS      // If you uncomment this, the voltage information will be added to the APRS comment field
+//#define USE_VOLTAGE_INFO          // Uncomment this if you use a voltage divider
+//#define VOLTAGE_IN_PIN 2          // Pin number to which the voltage divider is connected
+//#define VOLTAGE_DIVIDER_R1 100000 // in Ohm 100K is a good value for voltage between 2 and 6 volts
+//#define VOLTAGE_DIVIDER_R2 100000 // in Ohm 100K is a good value for voltage between 2 and 6 volts
+//#define VOLTAGE_DEVIATION  0.0    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
+
+//#define USE_VOLTAGE_IN_APRS     // If you uncomment this, the voltage information will be added to the APRS comment field
 
 //============================================================================
-// Enable this if you have a BME280 sensor
+// Enable this if you have a BME280 sensor installed.
 // A template of the code for the BME280 is in bme280.ino. Or you can write
 // your own code. 
 // Comment the lines below out if you do not use a bme280 sensor
@@ -114,26 +129,26 @@
 // Enable the three defines below to enter calibration mode
 // #define CALIBRATE_RADIO
 // #define CAL_FREQUENCY 433.090
-// #define CAL_OFFSET_FREQUENCY -0.016
+// #define CAL_OFFSET_FREQUENCY -0.000
 
 //============================================================================
 // RTTY SETTINGS
 //  
 // Personalize when you have RTTY_ENABLED set to true and you want RTTY transmissions
-// I consider this mode more or less deprecated.
+// I consider this mode more or less deprecated and I will probably remove this mode in future releases
 //============================================================================
 #define RTTY_ENABLED false        // Set to true if you want RTTY transmissions
 #define RTTY_PAYLOAD_ID "MYCALL"  // This will show on Sondehub. Payload ID for RTTY protocol. CHANGE THIS!
 #define RTTY_FREQUENCY 437.600    // in MHz
-#define RTTY_SHIFT 610            // in increments of 61. 610 is usually a good value.
+#define RTTY_SHIFT 610            // 610 is usually a good value. 
 #define RTTY_BAUD 100             // Baud rate. You should set this to 50 or 100 usually
 #define RTTY_STOPBITS 2           // Usually leave this at 2
 #define RTTY_PREFIX "$$$$$$"      // As RTTY with the sx12xx series chips is challenging, prefix with at least 4x$
 #define RTTY_REPEATS 1            // number of RTTY transmits during a cycle, usually set to 1
 #define RTTY_LOOPTIME 40          // Transmit RTTY every xx seconds
 #define RTTY_IDLE_TIME 4000       // Idle carrier in ms before sending actual RTTY string. \
-                                  // Set to a low value (i.e. 1000 or lower) if you have a very frequency stable signal \
-                                  // Set to a high value (i.e. 5000 or even higher) if you have a hard time to tune the signal
+                                  // Set to a low value (i.e. 1000 or lower) if you have a very frequency stable signal 
+                                  // Set to a high value (i.e. 5000 or even higher) if you have a hard time to tune and decode the signal
 
 //============================================================================
 // LORA SETTINGS
@@ -149,7 +164,6 @@
 // 6 = (uplink 868,             2800 baud)  Explicit mode, Error coding 4:5, Bandwidth 41.7kHz, SF 6, Low data rate optimize off - SUPPORTED
 // 7 = (Telnet comms 434,       2800 baud)  Explicit mode, Error coding 4:5, Bandwidth 20.8kHz, SF 7, Low data rate optimize off - SUPPORTED
 // 8 = (SSDV repeater,          4500 baud)  Explicit mode, Error coding 4:5, Bandwidth 62.5kHz, SF 6, Low data rate optimize off - SUPPORTED
-// 99 = (World wide LoRa-APRS mode at 433.775MHz, Explicit mode, Error coding 4:5, Bandwidth 125kHz, SF 12,Low data rate optimize on - SUPPORTED  )
 //============================================================================
 #define LORA_ENABLED false        // Set to true if you want LoRa transmissions
 #define RECEIVING_ENABLED false   // Set to true if you want the tracker to listen on the LoRa frequency for incoming packets
@@ -193,36 +207,37 @@
 // If you do not have a payload ID, you can use 0 (=4FSKTEST) for V1 and 256 (=4FSKTEST-V2) for V2:
 //#define PAYLOAD_ID_V1  0
 //#define PAYLOAD_ID_V2  256
+//
+// HORUS V3 is currently the preferred mode.
 //============================================================================
-#define HORUS_V1_ENABLED false       // Set to true if you want HorusBinary V1 transmissions (you can do both V1 and V2 transmissions)
+#define HORUS_V1_ENABLED false       // Set to true if you want HorusBinary V1 transmissions (you can do V1, V2 and V3 transmissions on the same tracker)
 #define HORUS_V2_ENABLED false       // Set to true if you want HorusBinary V2 transmissions
-#define HORUS_V3_ENABLED false       // Set to true if you want HorusBinary V3 transmissions 
-#define HORUS_V3_CALLSIGN "MYCALL"   // Horus V3 callsign. you are free to choose but keep it AS SHORT AS POSSIBLE (adding V3 in the call is not necessary)
+#define HORUS_V3_ENABLED false       // Set to true if you want HorusBinary V3 transmissions (recommended Horus mode)
+#define HORUS_V3_CALLSIGN "MYCALL"   // Horus V3 callsign and is free to choose but keep it AS SHORT AS POSSIBLE (adding V3 in the call is not necessary and not recommended)
 #define HORUS_V3_CUSTOM_FIELDS       // if defined will include custom fields into the Horus transmission
                                      // two fields have been already added as custom fields in this code:
-                                     // 1. gps speed (in km/hr) 
-                                     // 2. RF chip   (sx1278, llcc68, sx1262, sx1268)
+                                     // 1. gps speed (currently set to 'do not show' in TBTracker-ESP32.ini)
+                                     // 2. RF chip
                                      // You can change this in the code or leave it as is
                                      // Note that including custom fields will SIGNIFICANTLY increase transmission length!
                                      // Just comment the line out if you do not want custom fields
-#define PAYLOAD_ID_V1 0              // For Horus V1. See above. Set to 0 if you do not have apayload ID
-#define PAYLOAD_ID_V2 256            // For Horus V2. See above. Set to 256 if you do not have apayload ID
+#define PAYLOAD_ID_V1 0              // For Horus V1. See above. Set to 0 if you do not have a payload ID
+#define PAYLOAD_ID_V2 256            // For Horus V2. See above. Set to 256 if you do not have a payload ID
 #define HORUS_FREQUENCY_1 437.600    // Horus can transmit on two frequencies (434.714, 437.600 is kind of standard in Europe )
 #define HORUS_FREQUENCY_2 434.714    // Just set to 0.0 if you only want 1 frequency
 #define HORUS_POWER 13               // In dBm. Valid values +2 to +17 dBm. 10dBm = 10mW, 13dBm=20mW (recommended)
 #define HORUS_BAUD 100               // recommended 50 (8MHz processor) or 100 baud (16MHz, better processor or esp32)
-#define HORUS_SPACING 270            // NOTE: This results in a shift of 244 Hz on the sx127x due to the PLL Resolution of the SX127x which is 61Hz
-#define HORUS_LOOPTIME 20            // Transmit Horus every xx seconds
+#define HORUS_SPACING 270            // NOTE: This results in a shift of 244 Hz on the sx127x and RF69 due to the PLL Resolution of those chips is 61Hz
+#define HORUS_LOOPTIME 30            // Transmit Horus every xx seconds
 #define HORUS_FREQ_OFFSET 0.0        // Frequency deviation in MHz. This will be added to HORUS_FREQUENCY
 
 //============================================================================
 // "Standard" AFSK APRS SETTINGS
 // This is very experimental. The analog tones are simultated through PCM block waves.
-// Also, for this to work you need DIO2 of the RF chip to be connected.
 // Personalize when you have AFSK_APRS set to true and you want APRS transmissions
 //
 // At this moment, AFSK APRS only works for boards using the original ESP32 MCU's (which are in the T-BEAM's and LILYGO boards)
-// AFSK APRS does currently not work for the Sx and Cx ESP32 series. But we are working on that :-)
+// AFSK APRS does currently not work reliable for the Sx and Cx ESP32 series. But we are working on that :-)
 //============================================================================
 #define APRS_AFSK_ENABLED false      // Set this to true if you want APRS transmissions
 #define APRS_AFSK_CALLSIGN "NOCALL"  // CHANGE THIS and use quotation marks. This will show on Sondehub. For APRS this should be a HAM call without SSID.
@@ -247,7 +262,7 @@ static const uint32_t GPSBaud = 9600;  // modern devices are 9600 baud. some are
 //   
 // Change if needed
 //============================================================================
-#define SENTENCE_LENGTH 100  // Maximum length of telemetry line to send (not for APRS and Horus)
+#define SENTENCE_LENGTH 100  // Maximum length of telemetry line to send
 
 //============================================================================
 // SONDEHUB EXTRA FIELDS SETTINGS for LoRa and RTTY transmissions (not used for Horus)
@@ -332,7 +347,7 @@ static const uint32_t GPSBaud = 9600;  // modern devices are 9600 baud. some are
 #define FSK_FREQDEV 5.0
 #define FSK_RXBANDWIDTH_sx127 125.0
 #define FSK_RXBANDWIDTH_sx126 156.2 
-#define FSK_POWER 10  // default power setting in dBm between 2 and 17. 10 = 10mW (recommended). Sets also RTTY power
+#define FSK_POWER 10  // default power setting in dBm between 2 and 17. 10 = 10mW. Sets also RTTY power
 #define FSK_PREAMBLELENGTH 16
 #define FSK_ENABLEOOK false
 #define FSK_DATASHAPING 0.5

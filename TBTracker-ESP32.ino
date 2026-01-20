@@ -12,9 +12,6 @@
 #include "horus_l2.h"
 #include "HorusBinaryV3.h"
 
-#define TBTRACKER_VERSION v0.4.0
-
-
 //============================================================================
 // DATA STRUCTS
 // 
@@ -123,7 +120,6 @@ unsigned long previousTX_LoRa_APRS = 0;
 unsigned long previousTX_APRS_AFSK = 0;
 volatile bool receivedFlag = false;
 
-
 //============================================================================
 // Generate a Horus Binary v1 packet, and populate it with data.
 //============================================================================
@@ -192,13 +188,10 @@ int build_horus_binary_packet_v3(uint8_t * uncoded_buffer)
   // This has the effect of padding out the unused bytes in the packet with zeros
   memset(uncoded_buffer, 0, HORUS_UNCODED_BUFFER_SIZE);
 
-  // Increment packet count
-  horusCounterV3++;
-  
   horusTelemetry asnMessage = 
   {
     .payloadCallsign  = HORUS_V3_CALLSIGN,
-    .sequenceNumber = horusCounterV3,
+    .sequenceNumber = horusCounterV3++,
     .timeOfDaySeconds  = UGPS.Hours*3600 + UGPS.Minutes*60 + UGPS.Seconds,
     .latitude = (int)(UGPS.Latitude*100000),
     .longitude = (int)(UGPS.Longitude*100000),
@@ -220,8 +213,8 @@ int build_horus_binary_packet_v3(uint8_t * uncoded_buffer)
                     }
                 },
                 .exist = {
-                    .name = true,
-                    .values = true,
+                    .name = false,
+                    .values = false,
                 },
                 
                 
@@ -245,6 +238,10 @@ int build_horus_binary_packet_v3(uint8_t * uncoded_buffer)
 #if defined(USE_SX1262)
                          .horusStr = "sx1262"
 #endif
+#if defined(USE_RF69)
+                         .horusStr = "rf69"
+#endif
+
 
                      }
                  },
@@ -258,7 +255,7 @@ int build_horus_binary_packet_v3(uint8_t * uncoded_buffer)
 
 
 
-    // .velocityHorizontalKilometersPerHour = gpsSpeedKph,
+    .velocityHorizontalKilometersPerHour = UGPS.Speed,
     .gnssSatellitesVisible = UGPS.Satellites,
     // .ascentRateCentimetersPerSecond = vVCalc * 100, // m/s -> cm/s
     .pressurehPa_x10 = round(ReadPressure()) * 10,
@@ -297,7 +294,7 @@ int build_horus_binary_packet_v3(uint8_t * uncoded_buffer)
 #else       
        .extraSensors = false,
 #endif
-       .velocityHorizontalKilometersPerHour = false,
+       .velocityHorizontalKilometersPerHour = true,
        .gnssSatellitesVisible = true,
        .ascentRateCentimetersPerSecond = false,
        .pressurehPa_x10 = true,
@@ -344,13 +341,12 @@ int build_horus_binary_packet_v3(uint8_t * uncoded_buffer)
             toSerialConsole("[error]: HORUS v3 Encoding Failed: ");
             toSerialConsole(errCode);toSerialConsole("\n");
         }
-          if(assert_value != 0)
-          {
-            toSerialConsole("[error]: HORUS v3 Assert Failure, maybe hit buffer size limit");toSerialConsole("\n");
-          }
-
-          // Need to check what happens here.
-          return 0;
+        if(assert_value != 0)
+        {
+          toSerialConsole("[error]: HORUS v3 Assert Failure, maybe hit buffer size limit");toSerialConsole("\n");
+        }
+        // Need to check what happens here.
+        return 0;
     }
     else 
     {
@@ -391,8 +387,6 @@ int build_horus_binary_packet_v3(uint8_t * uncoded_buffer)
     return 0;
 }
 
-
-
 //============================================================================
 // Do the setup of the program
 //============================================================================
@@ -400,8 +394,7 @@ void setup() {
   // Set CPU speed to 40MHz to spare energy
   setCpuFrequencyMhz(40);
 
-
-// Disable the Bluetooth stack
+// Disable the Bluetooth stack if it is on the board
 #if defined(CONFIG_BT_ENABLED)
   btStop();
 #else
@@ -411,7 +404,16 @@ void setup() {
   // Setup Serial for debugging
 #if defined(ALLOWDEBUG)
   Serial.begin(115200);
-  delay(500);
+  unsigned long Serialstart = millis();
+  // The timeout loop
+  while (!Serial && (millis() - Serialstart < 500)) 
+  {
+    delay(10);
+  }
+  if (Serial) 
+  {
+     toSerialConsole("Serial console initiated okay.\n");
+  }
 #endif
 
   // Write the version information
@@ -428,8 +430,7 @@ void setup() {
 
   // Setup the Radio
   ResetRadio();
-  SetupRadio();
-
+  
 #if defined(USE_BME280)
   // Initialize the BME280 sensor if available
   setup_bme280();
@@ -527,7 +528,6 @@ void loop() {
     // Set the Tracker in receiving mode
     if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }
-
 
   // Send LORA-APRS
   if ((LORA_APRS_ENABLED) && (currentMillis - previousTX_LoRa_APRS >= ((unsigned long)LORA_APRS_LOOPTIME * (unsigned long)1000))) {

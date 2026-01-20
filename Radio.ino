@@ -1,7 +1,6 @@
 //============================================================================
-// Radio rtelated functions
+// Radio related functions
 //============================================================================
-
 // include the library
 #include <RadioLib.h>
 
@@ -20,6 +19,10 @@ SX1268 radio = new Module(PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY);
 #else
 #if defined(USE_SX1262)
 SX1262 radio = new Module(PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY);
+#else
+#if defined(USE_RF69)
+RF69 radio = new Module(PIN_NSS, PIN_DIO0, PIN_RESET);
+#endif
 #endif
 #endif
 #endif
@@ -79,7 +82,11 @@ void SendAPRS() {
 
   
   toSerialConsole("\nSetting up radio for APRS...");
+#if defined(USE_RF69)
+  Radiolib_assert(radio.begin(APRS_AFSK_FREQUENCY + APRS_AFSK_FREQ_OFFSET));
+#else  
   Radiolib_assert(radio.beginFSK(APRS_AFSK_FREQUENCY + APRS_AFSK_FREQ_OFFSET));
+#endif  
   Radiolib_assert(radio.setOutputPower(APRS_AFSK_POWER));
   // If we get this far, the radio is initialized
   // initialize AX.25 client
@@ -138,11 +145,14 @@ void SetupHorus(float lFreq) {
 #else
 #if defined (USE_LLCC68)  
   Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
+#else
+#if defined (USE_RF69)  
+  Radiolib_assert(radio.begin(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx127, FSK_POWER, FSK_PREAMBLELENGTH));
 #endif
 #endif
 #endif
 #endif
-
+#endif
 
   toSerialConsole("[FSK4] Initializing ... ");
   // initialize FSK4 transmitter
@@ -180,6 +190,10 @@ void SetupFSK() {
 #else
 #if defined (USE_LLCC68)  
   Radiolib_assert(radio.beginFSK(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx126, FSK_POWER, FSK_PREAMBLELENGTH, USE_TCXO, FSK_USERREGULATORLDO));
+#else
+#if defined (USE_RF69)  
+  Radiolib_assert(radio.begin(FSK_FREQUENCY, FSK_BITRATE, FSK_FREQDEV, FSK_RXBANDWIDTH_sx127, FSK_POWER, FSK_PREAMBLELENGTH));
+#endif
 #endif
 #endif
 #endif
@@ -190,6 +204,7 @@ void SetupFSK() {
 // Set the radio for LoRa modulation
 //============================================================================
 void SetupLoRa(int aMode) {
+#if !defined(USE_RF69)  
   // Initialize the SX1278
   toSerialConsole("[LoRA] Initializing ... ");
 
@@ -313,6 +328,18 @@ void SetupLoRa(int aMode) {
       LoRaSettings.PreambleLength,
       USE_TCXO));
 #else
+#if defined(USE_LLCC68)
+  Radiolib_assert(
+    radio.begin(
+      LoRaSettings.Frequency,
+      LoRaSettings.Bandwidth,
+      LoRaSettings.SpreadFactor,
+      LoRaSettings.CodeRate,
+      LoRaSettings.SyncWord,
+      LoRaSettings.Power,
+      LoRaSettings.PreambleLength,
+      USE_TCXO));
+#else      
   Radiolib_assert(
     radio.begin(
       LoRaSettings.Frequency,
@@ -323,6 +350,7 @@ void SetupLoRa(int aMode) {
       LoRaSettings.Power,
       LoRaSettings.PreambleLength,
       LoRaSettings.Gain));
+#endif
 #endif
 #endif
 
@@ -343,16 +371,7 @@ void SetupLoRa(int aMode) {
       Radiolib_assert(radio.setCRC(true));
       break;
   }
-}
-
-
-//============================================================================
-// Initial setup of radio (more or less deprecated, I have to look into that)
-//============================================================================
-void SetupRadio() {
-  // Setting up the radio
-  if (RTTY_ENABLED) { SetupRTTY(); }
-  if (LORA_ENABLED) { SetupLoRa(LORA_MODE); }
+#endif
 }
 
 //============================================================================
@@ -368,8 +387,9 @@ void sendRTTY(String TxLine) {
   // Send the string
   toSerialConsole("Send RTTY: ");
   toSerialConsole(TxLine);toSerialConsole("\n");
-  toSerialConsole(TxLine);toSerialConsole("\n");
+  Radiolib_assert(rtty.println(TxLine));
   Radiolib_assert(rtty.standby());
+  
 }
 
 //============================================================================
@@ -388,6 +408,7 @@ void ResetRadio() {
 // Send a LoRa packet over the radio
 //============================================================================
 void sendLoRa(String TxLine, int aMode) {
+#if !defined(USE_RF69)  
   SetupLoRa(aMode);
   toSerialConsole(TxLine);toSerialConsole("\n");
 
@@ -403,9 +424,11 @@ void sendLoRa(String TxLine, int aMode) {
       break;
     default:
       // Send the string
+      toSerialConsole("Transmitting LoRa ");
       Radiolib_assert(radio.transmit(TxLine));
       break;
   }
+#endif  
 }
 
 //============================================================================
@@ -626,7 +649,6 @@ void sendLoRaAprs() {
   aprs_packet += " " ;
   aprs_packet += LORA_APRS_CUSTOM_MESSAGE;
 
-
   if (LORA_APRS_WORLD_ENABLED) {
     toSerialConsole("Sending LoRa APRS packet on the world frequency\n");
     sendLoRa(aprs_packet, LORA_APRS_MODE);
@@ -643,7 +665,6 @@ void sendLoRaAprs() {
   }
 }
 
-
 //============================================================================
 // Send a tone on a specific frequency for calibration purposes
 // You can enable this in the settings.h file
@@ -653,7 +674,11 @@ void FreqCalibration(float Frequency) {
 
   // create FSK4 client instance using the FSK module
   FSK4Client fsk4(&radio);
+#if defined(USE_RF69)  
+  Radiolib_assert(radio.begin());
+#else
   Radiolib_assert(radio.beginFSK());
+#endif  
 
   // Starting fsk4
   toSerialConsole("Starting Radio...");
@@ -672,7 +697,10 @@ void FreqCalibration(float Frequency) {
 // Put the radio in RX mode. enable this in settings. 
 // LoRa should be enabled
 //============================================================================
-void StartReceiveLoRaPacket() {
+void StartReceiveLoRaPacket() 
+{
+#if !defined(USE_RF69)
+
   SetupLoRa(LORA_MODE);
 #if defined(USE_SX127X)
   radio.setDio0Action(setFlag, RISING);  // As of RadioLib 6.0.0 all methods to attach interrupts no longer have a default level change direction
@@ -690,5 +718,8 @@ void StartReceiveLoRaPacket() {
   toSerialConsole(LoRaSettings.Frequency, 3);
   toSerialConsole(" MHz\n");
   toSerialConsole("----------------------------\n");
+#else
+   toSerialConsole("Receiving LoRa packets not supported for RF69 modules.\n");    
+#endif  
 }
 

@@ -19,6 +19,7 @@ float ReadVCC() {
   for (int i=1; i<= Iterations;i++ )
   {
      adc_calibrated += analogReadMilliVolts(VOLTAGE_IN_PIN);
+     delay(1);
   }   
   adc_calibrated = adc_calibrated / Iterations;
   adc_calibrated = adc_calibrated / 1000.0;

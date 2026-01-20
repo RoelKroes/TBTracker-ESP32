@@ -7,8 +7,7 @@
 // Sends output to the serial console with 1ms delay between characters
 //============================================================================
 template <typename T>
-void toSerialConsole(T data) 
-{  
+void toSerialConsole(T data) {  
 #if defined(ALLOWDEBUG)	
   // this will work for int, float, double, char, etc.
   String Str = String(data);
@@ -18,18 +17,19 @@ void toSerialConsole(T data)
     Serial.write(Str[i]);
     delay(1); // 1ms delay for esp32s2 and c3 mcu with native USB comms.
   }
+	Serial.flush();
 #endif	
 }
 
 // version for floats where you can specify the number of decimals
-void toSerialConsole(double data, int decimals) 
-{
+void toSerialConsole(double data, int decimals) {
 #if defined(ALLOWDEBUG)	
   String Str = String(data, decimals);
   for (unsigned int i = 0; i < Str.length(); i++) {
     Serial.write(Str[i]);
     delay(1);
   }
+	Serial.flush();
 #endif	
 }
 
@@ -121,7 +121,7 @@ int8_t Decto2compl(float aNumber) {
 // If the call does not succeed, wait 60 seconds, reset the esp32 and try again.
 //============================================================================
 void Radiolib_assert(int16_t lState) {
-	if (lState == RADIOLIB_ERR_NONE)  // Change this to (state == ERR_NONE) if you use an older radiolib library
+	if (lState >= RADIOLIB_ERR_NONE)  // Change this to (state == ERR_NONE) if you use an older radiolib library
 	{
 		toSerialConsole("done\n");
 	} else 

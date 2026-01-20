@@ -55,6 +55,11 @@ Connect your LoRa and GPS modules to your ESP board and change the values in the
 At this moment APRS with AFSK only works on the "original" ESP32 series and not on the ESP32-Sx and ESP32-Cx versions. We are working on this problem.
 
 # Versions
+V0.4.1
+- Added support for the RF69 module
+- Repaired the RTTY mode for all modules
+- Solved sevral small bugs
+- Optimized some code
 
 V0.4.0
 New variables were defined in settings.h, so use the settings.h file that comes with this version
