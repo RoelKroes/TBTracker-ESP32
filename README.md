@@ -37,7 +37,7 @@ The minimal hardware configuration you need is:
 
 - ESP32 or ESP32S2 board
 - GPS module (recommended Ublox Neo or ATGM336H)
-- Lora module (sx1278, sx1276, sx1268, sx1262, LLCC68 (LLCC68 is not suitable for LoRa-APRS) or Hope RFM9x module)
+- Lora module (sx1278, sx1276, sx1268, sx1262, RF69, LLCC68 (LLCC68 is not suitable for LoRa-APRS) or Hope RFM9x module)
 - If you use SSDV: Freenove or compatible ESP32S3 with a camera interface
 
 # Hardware example
