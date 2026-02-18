@@ -64,7 +64,7 @@ See: https://github.com/projecthorus
 
 # SSDV
 
-As of Version 0.5.1 TBTracker supports SSDV. This is still very much experimental. We tested it using an ESP32-S3 N16R8 Devboard with 16MB Flash, 8MB PSRAM and a camera interface. I recommend the OV5640 camera's. 
+As of Version 0.5.1 TBTracker supports SSDV. I used code for SSDV from Philip Heron. This is still very much experimental. We tested it using an ESP32-S3 N16R8 Devboard with 16MB Flash, 8MB PSRAM and a camera interface. I recommend the OV5640 camera's. 
 
 With SSDV, a GPS, a sx1278, a SD card and a BME280 sensor, pin assignment becomes critical. Settings.h has a working example of the pins you can use with the ESP32-S3 N16R8.
 
