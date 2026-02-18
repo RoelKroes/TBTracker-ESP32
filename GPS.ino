@@ -58,11 +58,16 @@ static void processGPSData() {
     UGPS.Minutes = gps.time.minute();
     UGPS.Seconds = gps.time.second();
     UGPS.Day = gps.date.day();
+    UGPS.Month = gps.date.month();
+    UGPS.Year = gps.date.year();
   } else {
     UGPS.Hours = 0;
     UGPS.Minutes = 0;
     UGPS.Seconds = 0;
     UGPS.Day = 0;
+    UGPS.Day = 0;
+    UGPS.Month = 0;
+    UGPS.Year = 0;
   }
 
   // Position
@@ -92,6 +97,43 @@ static void processGPSData() {
      UGPS.Speed = gps.speed.kmph();
   else
      UGPS.Speed = 0;
+}
+
+//============================================================================
+// Create a Time / Location stamp that can be used as a filename for example
+//============================================================================
+String getTimeLocationString() 
+{
+  String result = "";
+
+  // Date: YYYYMMDD
+  result += String(UGPS.Year);
+  if (UGPS.Month < 10) result += "0";
+  result += String(UGPS.Month);
+  if (UGPS.Day < 10) result += "0";
+  result += String(UGPS.Day);
+
+  result += " ";
+
+  // Time: HHMMSS 
+  if (UGPS.Hours < 10) result += "0";
+  result += String(UGPS.Hours);
+  if (UGPS.Minutes < 10) result += "0";
+  result += String(UGPS.Minutes);
+  if (UGPS.Seconds < 10) result += "0";
+  result += String(UGPS.Seconds);
+  result += 'z';
+
+  result += " ";
+
+  // Coördinates and Altitude
+  result += String(UGPS.Longitude, 4);
+  result += " ";
+  result += String(UGPS.Latitude, 4);
+  result += " ";
+  result += String(UGPS.Altitude);
+
+  return result;
 }
 
 //============================================================================

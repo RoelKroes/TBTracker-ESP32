@@ -6,7 +6,7 @@
 //  Have FUN!
 //============================================================================
 #define TBTRACKER_VERSION_MAJOR  0
-#define TBTRACKER_VERSION_MINOR  4
+#define TBTRACKER_VERSION_MINOR  5
 #define TBTRACKER_VERSION_PATCH  1
 #define TBTRACKER_VERSION_EXTRA  0
 

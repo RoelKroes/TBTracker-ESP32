@@ -14,6 +14,8 @@ float ReadVCC() {
   float in_voltage = 0.0;
   float adc_calibrated = 0.0;
   int Iterations = 16;
+pinMode(VOLTAGE_IN_PIN,INPUT);
+
   // Measure a couple of times 
   
   for (int i=1; i<= Iterations;i++ )
@@ -32,7 +34,7 @@ float ReadVCC() {
 }
 
 //===============================================================================
-// Read the internal chip temperature//
+// Read the temperature
 // Create your own code here
 //===============================================================================
 float ReadTemp(void) {

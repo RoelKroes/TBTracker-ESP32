@@ -5,10 +5,15 @@
 
 #include <Wire.h>
 #include <SPI.h>
-#include <Adafruit_Sensor.h>    // Can be downloaded from the library manager
-#include <Adafruit_BME280.h>    // Can be downloaded from the library manager
+#include <BME280I2C.h>
+//#include <Adafruit_Sensor.h>    // Can be downloaded from the library manager
+//#include <Adafruit_BME280.h>    // Can be downloaded from the library manager
 
-Adafruit_BME280 bme;   
+// Adafruit_BME280 bme;   
+
+BME280I2C bme;    // Default : forced mode, standby time = 1000 ms
+                  // Oversampling = pressure ×1, temperature ×1, humidity ×1, filter off,
+
 
 //============================================================================
 // setup the bme280 sensor
@@ -17,15 +22,22 @@ void setup_bme280() {
   unsigned status;
   toSerialConsole("Setting up bme280.\n");
   Wire.begin(SDA_PIN, SCL_PIN);
-  status = bme.begin(0x76, &Wire);
-  if (!status) {
-    toSerialConsole("Could not find a valid BME280 sensor, check wiring, address, sensor ID!\n");
-    toSerialConsole("SensorID was: 0x");
-    toSerialConsole(bme.sensorID(), 16); toSerialConsole("\n");
-    toSerialConsole("        ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n");
-    toSerialConsole("   ID of 0x56-0x58 represents a BMP 280,\n");
-    toSerialConsole("        ID of 0x60 represents a BME 280.\n");
-    toSerialConsole("        ID of 0x61 represents a BME 680.\n\n");
+  if (!bme.begin())
+  {
+    toSerialConsole("Could not find a valid BME280 sensor. Wrong wiring?\n");
+    return;
+  }
+  
+  switch(bme.chipModel())
+ {
+     case BME280::ChipModel_BME280:
+       toSerialConsole("Found BME280 sensor! Success.\n");
+       break;
+     case BME280::ChipModel_BMP280:
+       toSerialConsole("Found BMP280 sensor! No Humidity available.\n");
+       break;
+     default:
+       toSerialConsole("Found UNKNOWN sensor! Error!\n");
   }
 }
 
@@ -33,21 +45,42 @@ void setup_bme280() {
 // get the temperature in °C
 //============================================================================
 float bme280_temperature() {
-  return (bme.readTemperature());
+  float temp(NAN), hum(NAN), pres(NAN);
+
+   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+   BME280::PresUnit presUnit(BME280::PresUnit_hPa);
+
+   bme.read(pres, temp, hum, tempUnit, presUnit);
+
+  return (temp);
 }
 
 //============================================================================
 // get the pressure in hPa
 //============================================================================
 float bme280_pressure() {
-  return (bme.readPressure() / 100.0F);
+  float temp(NAN), hum(NAN), pres(NAN);
+
+   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+   BME280::PresUnit presUnit(BME280::PresUnit_hPa);
+
+   bme.read(pres, temp, hum, tempUnit, presUnit);
+
+   return(pres);
 }
 
 //============================================================================
 // get the relative humidity in %
 //============================================================================
 float bme280_humidity() {
-  return (bme.readHumidity());
+  float temp(NAN), hum(NAN), pres(NAN);
+
+   BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+   BME280::PresUnit presUnit(BME280::PresUnit_hPa);
+
+   bme.read(pres, temp, hum, tempUnit, presUnit);
+
+   return(hum);
 }
 
 #endif

@@ -15,11 +15,18 @@
 //  
 // Change if needed
 // the default pins for my ESP32-S2 are: SCK=36, MISO=37, MOSI=35, CS=34 
+//
 // But you can redefine the SPI pins by creating defines: 
 // #define SCK 36
 // #define MISO 37
 // #define MOSI 35
 // #define CS 34
+//
+// SPI interface pins for Freenove ESP32-S3 WROOM with camera
+//#define SCK 47
+//#define MISO 14
+//#define MOSI 21
+//#define CS 1
 //============================================================================
 // SPI interface pin numbers
 #define SCK 36
@@ -32,10 +39,10 @@
 // Comment out the one you do not use
 // Currently sx1278, sx1262, sx1268, LLCC68 and the RF69 are supported
 //
-//  sx1278: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX 
-//  sx1276: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX 
-//  sx1262: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX (recommended RF module for all modes)
-//  sx1268: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX (recommended RF module for all modes)
+//  sx1278: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX, SSDV LoRa mode 1 and 2 
+//  sx1276: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX, SSDV LoRa mode 1 and 2  
+//  sx1262: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX, SSDV LoRa mode 2 (recommended RF module for all Horus modes)
+//  sx1268: RTTY, Horus, LoRa, LoRa-APRS, APRS, RX, SSDV LoRa mode 2 (recommended RF module for all Horus modes)
 //  LLCC68: RTTY, Horus, LoRa, APRS (not recommended for LoRa, only bw 125, 250 and 500kHz are upported)
 //    RF69: RTTY, Horus, APRS
 //
@@ -61,9 +68,18 @@
 //============================================================================
 // Define the pin numbers for the connection from the esp32 to the RF module
 // Not all pin numbers are used for the different RF modules
-// For the sx127x series: PIN_NSS, PIN_DIO0, PIN_RESET, PIN_DIO1 and PIN_DIO2 is you use AFSK APRS
-// For the SX126x and LLCC68 series: PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY and PIN_DIO2 if you use AFSKL APRS
+// For the sx127x series: PIN_NSS, PIN_DIO0, PIN_RESET, PIN_DIO1 (and PIN_DIO2 is you use AFSK APRS)
+// For the SX126x and LLCC68 series: PIN_NSS, PIN_DIO1, PIN_RESET, PIN_BUSY (and PIN_DIO2 if you use AFSKL APRS)
 // For the RF69: PIN_NSS, PIN_DIO0, PIN_RESET
+//
+// Use the pins below for the esp32s3 with camera 
+//#define PIN_NSS 1
+//#define PIN_DIO0 41
+//#define PIN_BUSY -1     
+//#define PIN_RESET 42
+//#define PIN_DIO1 20
+//
+//#define PIN_DIO2 -1  
 //============================================================================
 #define PIN_NSS 34
 #define PIN_DIO0 38
@@ -93,25 +109,31 @@
 //      GND
 //
 // Comment the five lines below out if you do not use a voltage divider
+// Use the pins below for the esp32s3 with camera 
+// #define VOLTAGE_IN_PIN 3
 //============================================================================
 //#define USE_VOLTAGE_INFO          // Uncomment this if you use a voltage divider
 //#define VOLTAGE_IN_PIN 2          // Pin number to which the voltage divider is connected
 //#define VOLTAGE_DIVIDER_R1 100000 // in Ohm 100K is a good value for voltage between 2 and 6 volts
 //#define VOLTAGE_DIVIDER_R2 100000 // in Ohm 100K is a good value for voltage between 2 and 6 volts
 //#define VOLTAGE_DEVIATION  0.0    // Will be added as an error offset to the calculated result of the voltage divider.In a perfect world this should be 0.00.
-
+//
 //#define USE_VOLTAGE_IN_APRS     // If you uncomment this, the voltage information will be added to the APRS comment field
 
 //============================================================================
 // Enable this if you have a BME280 sensor installed.
 // A template of the code for the BME280 is in bme280.ino. Or you can write
 // your own code. 
+// 
+// Use the pins below for the esp32s3 with camera 
+//#define SDA_PIN 46  // your SDA pin for the I2C protocol (needed for BME280 sensor)
+//#define SCL_PIN 2  // your SCL pin for the I2C protocol (needed for BME280 sensor) 
+//
 // Comment the lines below out if you do not use a bme280 sensor
 //============================================================================
 //#define USE_BME280 // Uncomment this line if you use a BME280 sensor
 //#define SDA_PIN 8  // your SDA pin for the I2C protocol (needed for BME280 sensor)
 //#define SCL_PIN 9  // your SCL pin for the I2C protocol (needed for BME280 sensor) 
-
 //#define USE_BME280_TEMP_IN_APRS     // If you uncomment this, the temperature reading from the BME280 will be added to the APRS comment field
 //#define USE_BME280_PRESSURE_IN_APRS // If you uncomment this, the pressure reading from the BME280 will be added to the APRS comment field
 //#define USE_BME280_HUMIDITY_IN_APRS // If you uncomment this, the humidity reading from the BME280 will be added to the APRS comment field
@@ -151,6 +173,58 @@
                                   // Set to a high value (i.e. 5000 or even higher) if you have a hard time to tune and decode the signal
 
 //============================================================================
+// SSDVsettings
+// Currently TBTracker only supports the Freenove ESP32-S3 WROOM series board with camera 
+// module. In the Arduino interface set the board to ESP32S3 Dev Module.
+// IF YOU USE SSDV, YOU NEED TO ENABLE LORA MODE 1 or 2 AS WELL!
+// Pin assignments are critical. Below is a working combination for the esp32-S3 N16R8 WROOM:
+// 
+// For the SPI interface
+// #define SCK 47
+// #define MISO 14
+// #define MOSI 21
+// #define CS 1
+//
+// For the I2C interface 
+// #define SDA_PIN 46  
+// #define SCL_PIN 2  
+// 
+// For the GPS connection
+// static const int Rx = -1, Tx = 19;
+//
+// For the voltage divider
+// #define VOLTAGE_IN_PIN 3
+//============================================================================
+// The main SSDV master switch. Enable the line below if you want to use SSDV
+// Otherwise leave it commented out.
+// #define USE_SSDV   
+
+// Freenove ESP32-S3 WROOM (or one of the manycompatibles) is the camera interface. Currently the only camera interface we tested.
+// But you can try others as defined in camera_pins.h. If you manage to get others working, please let me know with the correct pin numbers
+// Some lenses have a tiny coil motor to control focus (i.e. OV2640AF). However these lenses are very rare and this software
+// does not support AF lenses yet. I recommend to "pre-focus" the lens before launch. Turn the lens against the clock 
+// for focus close by and with the clock for focus in the distance. Usually the lens is lightly glued to the camera.
+// SETTINGS BELOW ONLY WORK IF THE LINE #DEFINE USE_SSDV IS UNCOMMENTED
+#define CAMERA_MODEL_ESP32S3_EYE
+#define FLIP_HORIZONTAL true      // Camera is usually mounted in selfie mode. Set to true if the picture needs mirroring hotizontally
+#define FLIP_VERTICAL false       // Set to true if the picture needs mirroring vertically (usually not the case)
+
+// High res settings (save to SD)
+#define SSDV_HIGHRES true         // Set to true if you want to take high res pictures and save those to SD card 
+#define SSDVHIGHRES_LOOPTIME 30   // take a high res picture and save to SD every xx seconds 
+#define HIGHRES_RESOLUTION  4     // 1 = 1600x1200 (all sensors, OV2640, OV3660 and OV5640)
+                                  // 2 = 1920x1080 (3MP and 5MP sensors, OV3660 and OV5640) 
+                                  // 3 = 2048x1536 (3MP and 5MP sensors, OV3660 and OV5640) 
+                                  // 4 = 2560x1440 (5MP sensors, OV5640)  2K
+#define HIGHRES_QUALITY 10        // 0..63 with 0=best, 63=worst. 10 is very good quality.                                  
+
+// Low res settings (send over LoRa, Highres pictures will be delayed as no highres pics can be taken before the lowres is sent over LoRa)
+#define SSDV_LOWRES  true        // Set to true if you want to send low res images over LoRa Mode 1
+#define CALLSIGN_SSDV "MY_CAM"   // max 6 chars!
+#define LOWRES_RESOLUTION 2      // 1=320x240, 2=640x480, 3=800x600, 4=1024x768
+#define LOWRES_QUALITY 4         // 0..7 with 7=best. Above 4 the improvements were not detectable
+
+//============================================================================
 // LORA SETTINGS
 //  
 // Personalize when you have LORA_ENABLED set to true and you want LORA transmissions
@@ -166,13 +240,18 @@
 // 8 = (SSDV repeater,          4500 baud)  Explicit mode, Error coding 4:5, Bandwidth 62.5kHz, SF 6, Low data rate optimize off - SUPPORTED
 //============================================================================
 #define LORA_ENABLED false        // Set to true if you want LoRa transmissions
-#define RECEIVING_ENABLED false   // Set to true if you want the tracker to listen on the LoRa frequency for incoming packets
-#define LORA_PAYLOAD_ID "MYCALL"  // This will show on Sondehub. Payload ID for LoRa protocol. CHANGE THIS!
-#define LORA_FREQUENCY 432.662    // in MHz
-#define LORA_MODE 2               // Mode 2 is usually used for simple telemetry data
-#define LORA_REPEATS 1            // number of LoRa transmits during a cycle
-#define LORA_LOOPTIME 40          // Transmit LoRa every xx seconds
-#define LORA_FREQ_OFFSET 0.0      // Frequency deviation in MHz. Will be added to the LoRa frequency. Should be a float and can be negative.
+#define RECEIVING_ENABLED false  // Set to true if you want the tracker to listen on the LoRa frequency for incoming packets
+#define LORA_PAYLOAD_ID "MYCALL-L"   // This will show on Sondehub. Payload ID for LoRa protocol. CHANGE THIS!
+#define LORA_FREQUENCY 432.662   // in MHz
+#define LORA_MODE 2              // Mode 2 is usually used for simple telemetry data or fast SSDV
+                                 // Mode 1 is usually used for low bandwidth SSDV
+                                 // Mode 2 is faster than mode 1 for ssdv but uses more bandwidth
+                                 // If you have a sx126x you best use mode 2 as mode 1 sometimes does not decode with some chinese chips.
+                                 // sx127x works fine with both modes
+                                 // I did not test the other modes
+#define LORA_REPEATS 1           // number of LoRa transmits during a cycle
+#define LORA_LOOPTIME 45         // Transmit LoRa every xx seconds
+#define LORA_FREQ_OFFSET 0.0     // Frequency deviation in MHz. Will be added to the LoRa frequency. Should be a float and can be negative.
 
 //============================================================================
 // LORA-APRS SETTINGS
@@ -228,7 +307,7 @@
 #define HORUS_POWER 13               // In dBm. Valid values +2 to +17 dBm. 10dBm = 10mW, 13dBm=20mW (recommended)
 #define HORUS_BAUD 100               // recommended 50 (8MHz processor) or 100 baud (16MHz, better processor or esp32)
 #define HORUS_SPACING 270            // NOTE: This results in a shift of 244 Hz on the sx127x and RF69 due to the PLL Resolution of those chips is 61Hz
-#define HORUS_LOOPTIME 30            // Transmit Horus every xx seconds
+#define HORUS_LOOPTIME 40            // Transmit Horus every xx seconds
 #define HORUS_FREQ_OFFSET 0.0        // Frequency deviation in MHz. This will be added to HORUS_FREQUENCY
 
 //============================================================================
@@ -252,6 +331,7 @@
 // GPS SETTINGS
 //  
 // Change if needed
+// For the esp32s3 with camere use: static const int Rx = -1, Tx = 19;
 //============================================================================
 // GPS Serial device pin numbers
 static const int Rx = 40, Tx = 39;     // This will probably be different for your board

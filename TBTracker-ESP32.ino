@@ -11,6 +11,7 @@
 #include "esp32-hal-cpu.h"
 #include "horus_l2.h"
 #include "HorusBinaryV3.h"
+#include <esp_camera.h>
 
 //============================================================================
 // DATA STRUCTS
@@ -19,7 +20,7 @@
 //============================================================================
 // Struct to hold GPS data
 struct TGPS {
-  int Hours, Minutes, Seconds, Day;
+  int Hours, Minutes, Seconds, Day, Month, Year;
   float Longitude, Latitude;
   long Altitude;
   unsigned int Satellites;
@@ -118,6 +119,7 @@ unsigned long previousTX_HorusV2 = 0;
 unsigned long previousTX_HorusV3 = 0;
 unsigned long previousTX_LoRa_APRS = 0;
 unsigned long previousTX_APRS_AFSK = 0;
+unsigned long previousTX_SSDVHIGHRES = 0;
 volatile bool receivedFlag = false;
 
 //============================================================================
@@ -392,7 +394,7 @@ int build_horus_binary_packet_v3(uint8_t * uncoded_buffer)
 //============================================================================
 void setup() {
   // Set CPU speed to 40MHz to spare energy
-  setCpuFrequencyMhz(40);
+  // setCpuFrequencyMhz(40);
 
 // Disable the Bluetooth stack if it is on the board
 #if defined(CONFIG_BT_ENABLED)
@@ -436,6 +438,11 @@ void setup() {
   setup_bme280();
 #endif
 
+#if defined(USE_SSDV)
+  // Initialize the cameraand SD card
+  setupSSDV();
+#endif
+
   // If defined in settings.h, the software will go into calibration mode
 #if defined(CALIBRATE_RADIO)
   FreqCalibration(CAL_FREQUENCY + CAL_OFFSET_FREQUENCY);
@@ -474,6 +481,23 @@ void loop() {
     ProcessRXPacket();
   }
 
+  // SSDV enabled
+  #if defined(USE_SSDV)
+  // Take a lowRes picture and send it over LoRa
+  if (SSDV_LOWRES) {
+    TakeandSendLowResPhoto(); 
+  }
+
+  // Take HighRes picture and save to SD
+  if ((SSDV_HIGHRES) && (currentMillis - previousTX_SSDVHIGHRES >= ((unsigned long)SSDVHIGHRES_LOOPTIME * (unsigned long)1000))) {
+    if (LORA_ENABLED && RECEIVING_ENABLED) { unsetFlag(); }
+    SaveHighResPhoto();  
+    previousTX_SSDVHIGHRES = currentMillis;
+    // Set the Tracker in receiving mode
+    if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
+  }
+  #endif // SSDV
+  
   // Send RTTY
   if ((RTTY_ENABLED) && (currentMillis - previousTX_RTTY >= ((unsigned long)RTTY_LOOPTIME * (unsigned long)1000))) {
     if (LORA_ENABLED && RECEIVING_ENABLED) { unsetFlag(); }
