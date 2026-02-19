@@ -74,6 +74,12 @@ The board I used:
 
 ![](esp32s3.png)
 
+I used these board settings:
+
+
+
+![](boardsettings.jpeg)
+
 # Installation
 
 Connect your LoRa and GPS modules to your ESP board and change the values in the Settings.h file. See the comments in the Settings.h file. Compile in the Arduino IDE and upload to your board.
