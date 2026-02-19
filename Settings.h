@@ -197,7 +197,10 @@
 //============================================================================
 // The main SSDV master switch. Enable the line below if you want to use SSDV
 // Otherwise leave it commented out.
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+// IMPORTANT: UNCOMMENT THE LINE BELOW IF YOU WANT TO USE SSDV
 // #define USE_SSDV   
+// VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
 // Freenove ESP32-S3 WROOM (or one of the manycompatibles) is the camera interface. Currently the only camera interface we tested.
 // But you can try others as defined in camera_pins.h. If you manage to get others working, please let me know with the correct pin numbers
