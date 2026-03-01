@@ -170,15 +170,22 @@ void SaveHighResPhoto()
   }
  
   // Create file name
-  // Filename should be: YYDDMM-HHMMSS-longitude-latitude-altitude
-  String picture_path = "/";
+  // Filename should be: YYDDMM-HHMMSS-longitude-latitude-altitude-randomstring-hires.jpg
+  String lFolder = "/" + getSDFolderName();
+  String picture_path = lFolder + "/";
   picture_path += getTimeLocationString(); 
-  picture_path += ".jpg"; 
+  picture_path += "_HIRES.jpg"; 
   fs::FS &fs = SD_MMC;
+  if(!fs.exists(lFolder))
+  {
+    fs.mkdir(lFolder);
+  }
   File file = fs.open(picture_path.c_str(), FILE_WRITE);  
   if(!file)
   {
     toSerialConsole("Could not open file for writing on SD card\n");
+    // Free the memory
+    esp_camera_fb_return(fb);
     return;
   }
 
@@ -224,6 +231,38 @@ void TakeandSendLowResPhoto()
     return;
   }
   toSerialConsole(imageID); toSerialConsole("\n");
+
+  // Save to SD if selected in Settings.h
+  if (SSDV_LOWRES_SAVE)
+  {
+    // Create file name
+    // Filename should be: YYDDMM-HHMMSS-longitude-latitude-altitude-randomstring-lowres.jpg
+    String lFolder = "/" + getSDFolderName();
+    String picture_path = lFolder + "/";
+    picture_path += getTimeLocationString(); 
+    picture_path += "_LOWRES.jpg"; 
+    fs::FS &fs = SD_MMC;
+    if(!fs.exists(lFolder))
+    {
+      fs.mkdir(lFolder);
+    }
+  
+    File file = fs.open(picture_path.c_str(), FILE_WRITE);  
+    if(!file)
+    {
+      toSerialConsole("Could not open file for writing on SD card\n");
+      // Free the memory
+      esp_camera_fb_return(fb);
+      return;
+    }
+
+    // Write the picture to the SD
+    file.write(fb->buf, fb->len); 
+    toSerialConsole("Photo saved: ");
+    toSerialConsole(picture_path.c_str());
+    toSerialConsole("\n");
+    file.close();
+  }  
 
   // Process the camera buffer
   process_ssdv(fb);

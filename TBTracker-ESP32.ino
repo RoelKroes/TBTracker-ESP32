@@ -120,6 +120,7 @@ unsigned long previousTX_HorusV3 = 0;
 unsigned long previousTX_LoRa_APRS = 0;
 unsigned long previousTX_APRS_AFSK = 0;
 unsigned long previousTX_SSDVHIGHRES = 0;
+unsigned long previousTX_SSDVLOWRES = 0;
 volatile bool receivedFlag = false;
 
 //============================================================================
@@ -483,16 +484,21 @@ void loop() {
 
   // SSDV enabled
   #if defined(USE_SSDV)
+
   // Take a lowRes picture and send it over LoRa
-  if (SSDV_LOWRES) {
+  if ((SSDV_LOWRES) && (currentMillis - previousTX_SSDVLOWRES >= ((unsigned long)SSDVLOWRES_LOOPTIME * (unsigned long)1000))) {
+    if (LORA_ENABLED && RECEIVING_ENABLED) { unsetFlag(); }
     TakeandSendLowResPhoto(); 
+    previousTX_SSDVLOWRES = millis();
+    // Set the Tracker in receiving mode
+    if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }
 
   // Take HighRes picture and save to SD
   if ((SSDV_HIGHRES) && (currentMillis - previousTX_SSDVHIGHRES >= ((unsigned long)SSDVHIGHRES_LOOPTIME * (unsigned long)1000))) {
     if (LORA_ENABLED && RECEIVING_ENABLED) { unsetFlag(); }
     SaveHighResPhoto();  
-    previousTX_SSDVHIGHRES = currentMillis;
+    previousTX_SSDVHIGHRES = millis();
     // Set the Tracker in receiving mode
     if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }
@@ -505,7 +511,7 @@ void loop() {
       CreateTXLine(RTTY_PAYLOAD_ID, RTTYCounter++, RTTY_PREFIX);
       sendRTTY(Sentence);
     }
-    previousTX_RTTY = currentMillis;
+    previousTX_RTTY = millis();
     // Set the Tracker in receiving mode
     if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }
@@ -518,7 +524,7 @@ void loop() {
       CreateTXLine(LORA_PAYLOAD_ID, LoRaCounter++, LORA_PREFIX);
       sendLoRa(Sentence, LORA_MODE);
     }
-    previousTX_LoRa = currentMillis;
+    previousTX_LoRa = millis();
     // Set the Tracker in receiving mode
     if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }
@@ -528,7 +534,7 @@ void loop() {
     delay(1000);
     if (LORA_ENABLED && RECEIVING_ENABLED) { unsetFlag(); }
     sendHorusV1();
-    previousTX_HorusV1 = currentMillis;
+    previousTX_HorusV1 = millis();
     // Set the Tracker in receiving mode
     if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }
@@ -538,7 +544,7 @@ void loop() {
     delay(1000);
     if (LORA_ENABLED && RECEIVING_ENABLED) { unsetFlag(); }
     sendHorusV2();
-    previousTX_HorusV2 = currentMillis;
+    previousTX_HorusV2 = millis();
     // Set the Tracker in receiving mode
     if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }
@@ -548,7 +554,7 @@ void loop() {
     delay(1000);
     if (LORA_ENABLED && RECEIVING_ENABLED) { unsetFlag(); }
     sendHorusV3();
-    previousTX_HorusV3 = currentMillis;
+    previousTX_HorusV3 = millis();
     // Set the Tracker in receiving mode
     if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }
@@ -558,7 +564,7 @@ void loop() {
     delay(1000);
     if (LORA_ENABLED && RECEIVING_ENABLED) { unsetFlag(); }
     sendLoRaAprs();
-    previousTX_LoRa_APRS = currentMillis;
+    previousTX_LoRa_APRS = millis();
     // Set the Tracker in receiving mode
     if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }
@@ -568,7 +574,7 @@ void loop() {
     delay(1000);
     if (LORA_ENABLED && RECEIVING_ENABLED) { unsetFlag(); }
     SendAPRS();
-    previousTX_APRS_AFSK = currentMillis;
+    previousTX_APRS_AFSK = millis();
     // Set the Tracker in receiving mode
     if (LORA_ENABLED && RECEIVING_ENABLED) { StartReceiveLoRaPacket(); }
   }

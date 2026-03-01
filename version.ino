@@ -7,7 +7,7 @@
 //============================================================================
 #define TBTRACKER_VERSION_MAJOR  0
 #define TBTRACKER_VERSION_MINOR  5
-#define TBTRACKER_VERSION_PATCH  1
+#define TBTRACKER_VERSION_PATCH  2
 #define TBTRACKER_VERSION_EXTRA  0
 
 #define TBTRACKER_VERSION (((TBTRACKER_VERSION_MAJOR) << 24) | ((TBTRACKER_VERSION_MINOR) << 16) | ((TBTRACKER_VERSION_PATCH) << 8) | (TBTRACKER_VERSION_EXTRA))

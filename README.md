@@ -24,7 +24,7 @@ The code is written in the Arduino IDE for ESP32 with a GPS module and a LoRa or
 
 # Library
 
-You will need to install two extra Arduino library from the librairy manager:
+You will need to install two extra Arduino library from the library manager:
 
 - Radiolib
 - TinyGPS++
@@ -46,6 +46,10 @@ Rob Goverde (PD7BOR) made a 2.5-gram ultralight tracker with only four parts. Be
 You can find his work here: https://www.robgoverde.nl/ct62-ballon-tracker-how-to/
 It's written in Dutch, but if you don't speak the language, Google Translate should be a big help.
 
+
+
+<img src="example_build1.jpg" title="" alt="" width="332">
+
 # Horusbinary_radiolib
 
 The radio related basecode for this sketch was taken from the horusbinary_radiolib project.
@@ -64,7 +68,7 @@ See: https://github.com/projecthorus
 
 # SSDV
 
-As of Version 0.5.1 TBTracker supports SSDV. I used code for SSDV from Philip Heron. This is still very much experimental. We tested it using an ESP32-S3 N16R8 Devboard with 16MB Flash, 8MB PSRAM and a camera interface. I recommend the OV5640 camera's. 
+As of Version 0.5.1 TBTracker supports SSDV. I used code for SSDV from [Philip Heron]([fsphil (Philip Heron) · GitHub](https://github.com/fsphil)) and was inspired by the work of [Kevin Walton]([KevWal (Kevin Walton) · GitHub](https://github.com/KevWal)). This is still very much experimental. We tested it using an ESP32-S3 N16R8 Devboard with 16MB Flash, 8MB PSRAM and a camera interface. I recommend the OV5640 camera's. 
 
 With SSDV, a GPS, a sx1278, a SD card and a BME280 sensor, pin assignment becomes critical. Settings.h has a working example of the pins you can use with the ESP32-S3 N16R8.
 
@@ -75,8 +79,6 @@ The board I used:
 ![](esp32s3.png)
 
 I used these board settings:
-
-
 
 ![](boardsettings.jpeg)
 
@@ -89,6 +91,16 @@ Connect your LoRa and GPS modules to your ESP board and change the values in the
 At this moment APRS with AFSK only works on the "original" ESP32 series and not on the ESP32-Sx and ESP32-Cx versions. 
 
 # Versions
+
+V0.5.2
+
+- Save pictures in a map with the current date as name
+
+- Make each picture filename unique
+
+- Low Res SSDV pictures  can now optionally be saved to SD card
+
+- You can now add a number of seconds between taking Low Res pictures for SSDV.
 
 V0.5.1
 

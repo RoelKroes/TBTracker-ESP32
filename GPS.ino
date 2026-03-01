@@ -100,6 +100,41 @@ static void processGPSData() {
 }
 
 //============================================================================
+// Generate a random string
+//============================================================================
+String generateRandomString(int length) {
+  // De mogelijke karakters waar de string uit kan bestaan
+  const char charset[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+  String result = "";
+
+  for (int i = 0; i < length; i++) {
+    // Kies een willekeurige index uit de charset
+    int index = random(0, sizeof(charset) - 1);
+    result += charset[index];
+  }
+
+  return result;
+}
+
+
+//============================================================================
+// Create a foldername giving the year, month, day of the GPS
+//============================================================================
+String getSDFolderName()
+{
+  String result = "";
+
+  // Date: YYYYMMDD
+  result += String(UGPS.Year);
+  if (UGPS.Month < 10) result += "0";
+  result += String(UGPS.Month);
+  if (UGPS.Day < 10) result += "0";
+  result += String(UGPS.Day);
+
+  return result;
+}
+
+//============================================================================
 // Create a Time / Location stamp that can be used as a filename for example
 //============================================================================
 String getTimeLocationString() 
@@ -132,6 +167,10 @@ String getTimeLocationString()
   result += String(UGPS.Latitude, 4);
   result += " ";
   result += String(UGPS.Altitude);
+
+  // Add an random string for pictures when there is no GPS lock
+  result += " ";
+  result += generateRandomString(8);
 
   return result;
 }
