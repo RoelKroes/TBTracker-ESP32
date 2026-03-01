@@ -95,11 +95,8 @@ At this moment APRS with AFSK only works on the "original" ESP32 series and not 
 V0.5.2
 
 - Save pictures in a map with the current date as name
-
 - Make each picture filename unique
-
 - Low Res SSDV pictures  can now optionally be saved to SD card
-
 - You can now add a number of seconds between taking Low Res pictures for SSDV.
 
 V0.5.1
