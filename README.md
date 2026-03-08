@@ -43,10 +43,7 @@ The minimal hardware configuration you need is:
 # Hardware example
 
 Rob Goverde (PD7BOR) made a 2.5-gram ultralight tracker with only four parts. Best of all, he documented his project beautifully.
-You can find his work here: https://www.robgoverde.nl/ct62-ballon-tracker-how-to/
-It's written in Dutch, but if you don't speak the language, Google Translate should be a big help.
-
-
+You can find his work here: https://www.robgoverde.nl/ct62-balloon-tracker-how-to-english/ .
 
 <img src="example_build1.jpg" title="" alt="" width="332">
 
